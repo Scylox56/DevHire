@@ -12,6 +12,7 @@ import DevDetail from "./pages/devs/DevDetail";
 import Messages from "./pages/chat/Messages";
 import ClientDashboard from "./pages/dashboard/ClientDashboard";
 import DevDashboard from "./pages/dashboard/DevDashboard";
+import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 
 export default function App() {
@@ -39,6 +40,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

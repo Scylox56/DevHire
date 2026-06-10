@@ -1,6 +1,10 @@
 import { Link, Navigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+// @ts-ignore
+import "./Home.css";
+
+// ─── Hooks ───────────────────────────────────────────────────────────────────
 
 function useCountUp(end: number, duration = 2500) {
   const [count, setCount] = useState(0);
@@ -57,22 +61,17 @@ function useReveal(threshold = 0.1) {
   return { ref, visible };
 }
 
-const stars = Array.from({ length: 30 }, (_, i) => ({
-  id: i,
-  top: `${Math.random() * 100}%`,
-  left: `${Math.random() * 100}%`,
-  size: `${2 + Math.random() * 4}px`,
-  duration: `${2 + Math.random() * 4}s`,
-  delay: `${Math.random() * 5}s`,
-}));
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const logos = [
-  "⚛️ React",
-  "▲ Next.js",
-  "🟢 Node.js",
-  "🐍 Python",
-  "🔷 TypeScript",
-  "☁️ AWS",
+  { label: "React", symbol: "⚛" },
+  { label: "Next.js", symbol: "▲" },
+  { label: "Node.js", symbol: "⬡" },
+  { label: "Python", symbol: "🐍" },
+  { label: "TypeScript", symbol: "TS" },
+  { label: "AWS", symbol: "☁" },
+  { label: "Rust", symbol: "⚙" },
+  { label: "Go", symbol: "◈" },
 ];
 
 const stepsData = [
@@ -80,19 +79,19 @@ const stepsData = [
     num: "01",
     title: "Create Your Account",
     desc: "Sign up in under 60 seconds as a developer or client. Set up your profile and start exploring opportunities.",
-    icon: "📝",
+    glyph: "⌬",
   },
   {
     num: "02",
     title: "Find Your Match",
     desc: "Browse projects that fit your skills or post a job and receive proposals from vetted developers.",
-    icon: "🔍",
+    glyph: "⊕",
   },
   {
     num: "03",
     title: "Collaborate & Succeed",
     desc: "Work together with built-in messaging, milestone tracking, and secure escrow payments.",
-    icon: "🤝",
+    glyph: "◎",
   },
 ];
 
@@ -100,38 +99,38 @@ const featuresData = [
   {
     title: "Developer Profiles",
     desc: "Showcase your skills, portfolio, and experience with a rich profile that stands out to clients.",
-    icon: "🎯",
-    color: "from-primary-500 to-primary-600",
+    glyph: "⊞",
+    accent: "#00FFD1",
   },
   {
     title: "Smart Job Matching",
     desc: "Our AI-powered algorithm connects you with projects that match your skills and preferences.",
-    icon: "🤖",
-    color: "from-secondary-300 to-secondary-400",
+    glyph: "⊗",
+    accent: "#7B61FF",
   },
   {
     title: "Secure Escrow",
-    desc: "Funds are held securely and released only when work meets your requirements. Peace of mind guaranteed.",
-    icon: "🔒",
-    color: "from-accent-400 to-accent-500",
+    desc: "Funds are held securely and released only when work meets your requirements.",
+    glyph: "⊘",
+    accent: "#FF3E6C",
   },
   {
     title: "Real-Time Chat",
     desc: "Built-in messaging with instant notifications keeps communication seamless and organized.",
-    icon: "💬",
-    color: "from-primary-500 to-secondary-400",
+    glyph: "⊙",
+    accent: "#00FFD1",
   },
   {
     title: "Milestone Tracking",
     desc: "Break projects into milestones with scheduled payments. Always know where your project stands.",
-    icon: "📊",
-    color: "from-secondary-300 to-accent-400",
+    glyph: "⊛",
+    accent: "#7B61FF",
   },
   {
     title: "Review System",
     desc: "Build reputation with verified reviews. Quality work leads to more opportunities.",
-    icon: "⭐",
-    color: "from-accent-400 to-primary-500",
+    glyph: "◈",
+    accent: "#FF3E6C",
   },
 ];
 
@@ -139,376 +138,344 @@ const testimonialsData = [
   {
     name: "Sarah Chen",
     role: "Full-Stack Developer",
-    avatar: "SC",
+    initials: "SC",
     text: "DevHire completely transformed my freelance career. I've worked with amazing clients from around the world and the secure payment system gives me total peace of mind.",
-    rating: 5,
-    color: "from-primary-400 to-primary-600",
+    accent: "#00FFD1",
   },
   {
     name: "Marcus Johnson",
     role: "Startup Founder",
-    avatar: "MJ",
+    initials: "MJ",
     text: "Finding skilled developers used to be a nightmare. DevHire made it effortless. I posted a project and had qualified proposals within hours. The quality of talent is outstanding.",
-    rating: 5,
-    color: "from-secondary-300 to-secondary-500",
+    accent: "#7B61FF",
   },
   {
     name: "Priya Patel",
     role: "UI/UX Designer",
-    avatar: "PP",
+    initials: "PP",
     text: "What sets DevHire apart is the community. The collaboration tools, milestone tracking, and responsive support team make every project a smooth experience.",
-    rating: 5,
-    color: "from-accent-400 to-accent-600",
+    accent: "#FF3E6C",
+  },
+  {
+    name: "Dmitri Volkov",
+    role: "Backend Engineer",
+    initials: "DV",
+    text: "I've tried every freelance platform. DevHire is the only one that actually understands developers. The matching algorithm is eerily good.",
+    accent: "#00FFD1",
+  },
+  {
+    name: "Aisha Okonkwo",
+    role: "Product Manager",
+    initials: "AO",
+    text: "We scaled our product team from 2 to 12 using DevHire. The escrow system protected us throughout. Zero bad hires in 18 months.",
+    accent: "#7B61FF",
   },
 ];
 
-function SectionHeading({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle: string;
-}) {
-  const { ref, visible } = useReveal();
+// ─── Circuit background SVG ───────────────────────────────────────────────────
+
+function CircuitBg() {
   return (
-    <div
-      ref={ref}
-      className={`text-center mb-14 transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-    >
-      <h2 className="text-4xl md:text-5xl font-black gradient-text mb-6 leading-[1.15] pb-2">
-        {title}
-      </h2>
-      <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-        {subtitle}
-      </p>
+    <div className="circuit-bg">
+      <svg
+        viewBox="0 0 1440 900"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        {/* Horizontal traces */}
+        {[80, 180, 300, 420, 540, 660, 780].map((y, i) => (
+          <path
+            key={`h${i}`}
+            className={`trace-line ${i % 3 === 1 ? "v" : i % 3 === 2 ? "c" : ""}`}
+            d={`M0 ${y} L${200 + i * 60} ${y} L${220 + i * 60} ${y + 20} L${600 + i * 40} ${y + 20} L${620 + i * 40} ${y} L1440 ${y}`}
+            strokeDasharray="80 360"
+            style={{
+              animationDelay: `${i * 0.8}s`,
+              animationDuration: `${7 + i * 0.5}s`,
+            }}
+          />
+        ))}
+        {/* Vertical traces */}
+        {[120, 280, 480, 720, 960, 1160, 1360].map((x, i) => (
+          <path
+            key={`v${i}`}
+            className={`trace-line ${i % 2 === 0 ? "v" : ""}`}
+            d={`M${x} 0 L${x} ${100 + i * 30} L${x + 20} ${120 + i * 30} L${x + 20} ${500 + i * 20} L${x} ${520 + i * 20} L${x} 900`}
+            strokeDasharray="60 340"
+            style={{
+              animationDelay: `${i * 0.6}s`,
+              animationDuration: `${6 + i * 0.4}s`,
+            }}
+          />
+        ))}
+        {/* Junction nodes */}
+        {[
+          [120, 80],
+          [280, 180],
+          [480, 300],
+          [720, 420],
+          [960, 540],
+          [1160, 660],
+          [1360, 780],
+          [200, 420],
+          [400, 180],
+          [600, 540],
+          [800, 300],
+          [1000, 80],
+          [1200, 420],
+        ].map(([x, y], i) => (
+          <circle
+            key={`n${i}`}
+            className={`circuit-node ${i % 2 === 0 ? "v" : ""}`}
+            cx={x}
+            cy={y}
+            r={3}
+            style={{ animationDelay: `${i * 0.3}s` }}
+          />
+        ))}
+      </svg>
     </div>
   );
 }
 
-function StatCard({
-  stat,
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function Reveal({
+  children,
+  delay = 0,
+  threshold = 0.1,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  threshold?: number;
+}) {
+  const { ref, visible } = useReveal(threshold);
+  return (
+    <div
+      ref={ref}
+      className={`reveal-ready ${visible ? "reveal-visible" : "reveal-hidden"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function StatCell({
+  value,
+  suffix,
+  label,
   index,
 }: {
-  stat: { value: number; label: string; icon: string; suffix: string };
+  value: number;
+  suffix: string;
+  label: string;
   index: number;
 }) {
-  const { count, ref } = useCountUp(stat.value);
-  const { ref: revealRef, visible } = useReveal(0.3);
+  const { count, ref } = useCountUp(value);
+  const { ref: rRef, visible } = useReveal(0.3);
 
   return (
     <div
       ref={(node) => {
-        (revealRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        (rRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
         (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
       }}
-      className={`glass-card-light text-center group hover:-translate-y-1 transition-all duration-500 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-      style={{ transitionDelay: `${index * 150}ms` }}
-    >
-      <div className="text-4xl mb-3 block">{stat.icon}</div>
-      <div className="flex items-baseline justify-center gap-0 mb-1">
-        <span className="stat-value text-5xl md:text-6xl font-black">
-          {count.toLocaleString()}
-        </span>
-        <span className="text-3xl md:text-4xl font-black text-primary-600 dark:text-primary-400">
-          {stat.suffix}
-        </span>
-      </div>
-      <div className="text-slate-500 dark:text-slate-400 font-medium">
-        {stat.label}
-      </div>
-    </div>
-  );
-}
-
-function StepCard({
-  step,
-  index,
-}: {
-  step: (typeof stepsData)[0];
-  index: number;
-}) {
-  const { ref, visible } = useReveal();
-  return (
-    <div
-      ref={ref}
-      className={`relative flex flex-col items-center text-center transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      }`}
-      style={{ transitionDelay: `${index * 200}ms` }}
-    >
-      <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-400 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-primary-500/20">
-          {step.icon}
-        </div>
-        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-accent-400 text-slate-900 text-sm font-bold flex items-center justify-center shadow-lg">
-          {step.num}
-        </div>
-      </div>
-      <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">
-        {step.title}
-      </h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
-        {step.desc}
-      </p>
-    </div>
-  );
-}
-
-function FeatureCard({
-  feature,
-  index,
-}: {
-  feature: (typeof featuresData)[0];
-  index: number;
-}) {
-  const { ref, visible } = useReveal();
-  return (
-    <div
-      ref={ref}
-      className={`glass-card-light group hover:-translate-y-1 cursor-default transition-all duration-500 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
+      className={`stat-cell reveal-ready ${visible ? "reveal-visible" : "reveal-hidden"}`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
-      <div
-        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-2xl mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}
-      >
-        {feature.icon}
+      <div className="stat-num">
+        {count.toLocaleString()}
+        <span className="stat-suffix">{suffix}</span>
       </div>
-      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">
-        {feature.title}
-      </h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-        {feature.desc}
-      </p>
+      <div className="stat-label">{label}</div>
     </div>
   );
 }
 
-function TestimonialCard({
-  testimonial,
-  index,
-}: {
-  testimonial: (typeof testimonialsData)[0];
-  index: number;
-}) {
-  const { ref, visible } = useReveal();
-  return (
-    <div
-      ref={ref}
-      className={`glass-card-light transition-all duration-500 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-      style={{ transitionDelay: `${index * 150}ms` }}
-    >
-      <div className="flex gap-1 mb-4">
-        {Array.from({ length: testimonial.rating }, (_, j) => (
-          <span key={j} className="text-amber-400 text-lg">
-            ★
-          </span>
-        ))}
-        {Array.from({ length: 5 - testimonial.rating }, (_, j) => (
-          <span key={j} className="text-slate-300 dark:text-slate-600 text-lg">
-            ★
-          </span>
-        ))}
-      </div>
-      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 italic">
-        &ldquo;{testimonial.text}&rdquo;
-      </p>
-      <div className="flex items-center gap-3 mt-auto">
-        <div
-          className={`w-11 h-11 rounded-full bg-gradient-to-br ${testimonial.color} flex items-center justify-center text-white text-sm font-bold`}
-        >
-          {testimonial.avatar}
-        </div>
-        <div>
-          <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
-            {testimonial.name}
-          </div>
-          <div className="text-xs text-slate-400">{testimonial.role}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Home() {
   const { user } = useAuth();
   if (user) return <Navigate to="/dashboard" replace />;
 
+  // Duplicate testimonials for seamless marquee loop
+  const allTestimonials = [...testimonialsData, ...testimonialsData];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden">
-      {/* Animated background blobs */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[40rem] h-[40rem] bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow" />
-        <div
-          className="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] bg-secondary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow"
-          style={{ animationDelay: "2s" }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50rem] h-[50rem] bg-accent-300 rounded-full mix-blend-multiply filter blur-3xl opacity-[0.15] dark:opacity-[0.08] animate-pulse-slow"
-          style={{ animationDelay: "4s" }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(99,102,241,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.3) 1px, transparent 1px)`,
-            backgroundSize: "80px 80px",
-          }}
-        />
-      </div>
+    <div className="dh-root">
+      {/* Background layers */}
+      <CircuitBg />
+      <div className="scanlines" />
 
-      {/* Stars */}
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          className="star"
-          style={
-            {
-              "--top": star.top,
-              "--left": star.left,
-              "--size": star.size,
-              "--duration": star.duration,
-              "--delay": star.delay,
-            } as React.CSSProperties
-          }
-        />
-      ))}
-
-      {/* ===== HERO SECTION ===== */}
-      <section className="container relative z-10 pt-20 pb-16 md:pt-28 md:pb-20">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* Left: Text Content */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-sm font-medium text-primary-300 dark:text-primary-300 animate-fade-in-down">
-              <span className="w-2 h-2 rounded-full bg-primary-400 dark:bg-primary-500 animate-pulse" />
-              Now connecting 12,000+ developers worldwide
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-6">
-              <span className="gradient-text">Hire Devs.</span>
-              <br />
-              <span className="text-slate-800 dark:text-slate-100">
-                Build Fast.
-              </span>
-              <br />
-              <span className="text-slate-800 dark:text-slate-100">
-                Scale Up.
-              </span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-xl mb-8 leading-relaxed mx-auto lg:mx-0">
-              The modern freelance marketplace where top developers meet
-              ambitious projects. Find your next opportunity or hire exceptional
-              talent &mdash; all in one place.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                to="/register"
-                className="btn-primary btn-lg group text-base shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5"
-              >
-                <span>Get Started Free</span>
-                <span className="inline-block ml-2 transition-all group-hover:translate-x-1.5 group-hover:scale-110">
-                  &rarr;
+      {/* ── HERO ── */}
+      <section className="hero-section">
+        <div className="dh-container">
+          <div
+            className="hero-layout"
+            style={{ display: "flex", gap: "64px", alignItems: "center" }}
+          >
+            {/* Left */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="hero-eyebrow">
+                <span className="dh-badge">
+                  <span className="dh-badge-dot" />
+                  12,000+ developers online now
                 </span>
-              </Link>
-              <Link
-                to="/jobs"
-                className="btn-ghost btn-lg border-2 border-primary-400/40 dark:border-primary-500/30 text-primary-300 dark:text-primary-400 hover:bg-primary-400/20 dark:hover:bg-primary-500/10 hover:border-primary-600 dark:hover:border-primary-400 hover:scale-105 text-base"
-              >
-                Browse Jobs
-              </Link>
-            </div>
+              </div>
 
-            {/* Trusted by */}
-            <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
-                Trusted Technology Stack
+              <h1 className="dh-display hero-headline">
+                <span className="text-cyan">Hire</span> the
+                <br />
+                <span className="text-cyan">Devs</span> that
+                <br />
+                <span className="hero-headline line-muted">ship.</span>
+              </h1>
+
+              <p className="hero-sub">
+                The freelance marketplace built for engineers. Find your next
+                contract or source exceptional talent — no noise, just signal.
               </p>
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                {logos.map((logo) => (
-                  <span
-                    key={logo}
-                    className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg"
-                  >
-                    {logo}
-                  </span>
-                ))}
+
+              <div className="hero-cta-row">
+                <Link to="/register" className="dh-btn-primary">
+                  Get Started Free
+                  <span style={{ fontSize: "1.1em" }}>→</span>
+                </Link>
+                <Link to="/jobs" className="dh-btn-ghost">
+                  Browse Jobs
+                </Link>
+              </div>
+
+              <div>
+                <p className="hero-stack-label">Trusted technology stack</p>
+                <div className="tech-pills">
+                  {logos.map((l) => (
+                    <span key={l.label} className="tech-pill">
+                      <span className="tech-pill-sym">{l.symbol}</span>
+                      {l.label}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right: Hero Visual */}
-          <div className="flex-1 w-full max-w-lg lg:max-w-none">
-            <div className="relative">
-              <div className="glass rounded-2xl p-6 shadow-2xl animate-float-slow">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                  <span className="ml-3 text-xs text-slate-400 font-mono">
-                    dashboard.preview
-                  </span>
+            {/* Right: Dashboard preview */}
+            <div className="hero-visual">
+              <div className="dash-card">
+                <div className="dash-chrome">
+                  <div className="dash-dot" style={{ background: "#FF5F57" }} />
+                  <div className="dash-dot" style={{ background: "#FFBD2E" }} />
+                  <div className="dash-dot" style={{ background: "#28C840" }} />
+                  <span className="dash-url">dashboard.devhire.io</span>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                      Active Projects
-                    </span>
-                    <span className="text-2xl font-black gradient-text">
-                      24
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                    <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-primary-500 to-secondary-400 animate-gradient-shift" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    {["$12.4k", "98%", "4.9\u2605"].map((val, i) => (
-                      <div key={i} className="glass rounded-xl p-3 text-center">
-                        <div className="text-sm font-bold gradient-text">
-                          {val}
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          {["Earned", "Satisfaction", "Rating"][i]}
-                        </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <div className="dash-label">Active Projects</div>
+                  <div className="dash-value">24</div>
+                </div>
+                <div className="dash-bar-track">
+                  <div className="dash-bar-fill" />
+                </div>
+
+                <div className="dash-mini-grid">
+                  {[
+                    ["$12.4k", "Earned"],
+                    ["98%", "Satisfaction"],
+                    ["4.9★", "Rating"],
+                  ].map(([v, l]) => (
+                    <div key={l} className="dash-mini-cell">
+                      <div className="dash-mini-val">{v}</div>
+                      <div className="dash-mini-lbl">{l}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "20px",
+                    padding: "14px",
+                    background: "var(--dash-inner-bg)",
+                    border: "1px solid var(--dash-inner-border)",
+                    borderRadius: "6px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontWeight: 700,
+                          fontSize: "0.8rem",
+                          color: "var(--text-primary)",
+                        }}
+                      >
+                        React Dashboard — v2
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating decorator cards */}
-              <div
-                className="absolute -top-4 -right-4 glass rounded-xl p-3 shadow-xl animate-float-slow hidden md:block"
-                style={{ animationDelay: "1s" }}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">👨‍💻</span>
-                  <div>
-                    <div className="text-xs font-bold">+250 devs</div>
-                    <div className="text-[10px] text-slate-400">
-                      joined today
+                      <div className="dash-label" style={{ marginTop: "3px" }}>
+                        Milestone 3 of 5
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        padding: "4px 10px",
+                        background: "var(--dash-inner-bg)",
+                        border: "1px solid var(--badge-border)",
+                        borderRadius: "4px",
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: "0.62rem",
+                        color: "var(--cyan)",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      IN REVIEW
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Floating chips */}
               <div
-                className="absolute -bottom-4 -left-4 glass rounded-xl p-3 shadow-xl animate-float-slow hidden md:block"
-                style={{ animationDelay: "2s" }}
+                className="float-chip"
+                style={{
+                  top: "-16px",
+                  right: "-16px",
+                  animationDelay: "1s",
+                  animation: "float-slow 5s ease-in-out infinite 1s",
+                }}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">💼</span>
-                  <div>
-                    <div className="text-xs font-bold">1,200+ jobs</div>
-                    <div className="text-[10px] text-slate-400">open now</div>
-                  </div>
+                <span className="float-chip-icon">👾</span>
+                <div>
+                  <div className="float-chip-title">+250 devs</div>
+                  <div className="float-chip-sub">joined today</div>
+                </div>
+              </div>
+
+              <div
+                className="float-chip"
+                style={{
+                  bottom: "-16px",
+                  left: "-16px",
+                  animation: "float-slow 5s ease-in-out infinite 2.5s",
+                }}
+              >
+                <span className="float-chip-icon">💼</span>
+                <div>
+                  <div className="float-chip-title">1,200+ jobs</div>
+                  <div className="float-chip-sub">open now</div>
                 </div>
               </div>
             </div>
@@ -516,135 +483,221 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== STATS SECTION ===== */}
-      <section className="container relative z-10 pb-16 md:pb-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {[
-            { value: 12000, label: "Developers", icon: "👨‍💻", suffix: "+" },
-            { value: 25000, label: "Job Listings", icon: "💼", suffix: "+" },
-            { value: 50000, label: "Projects Done", icon: "🚀", suffix: "+" },
-            { value: 98, label: "Satisfaction Rate", icon: "⭐", suffix: "%" },
-          ].map((stat, i) => (
-            <StatCard key={stat.label} stat={stat} index={i} />
-          ))}
+      {/* ── STATS ── */}
+      <section className="stats-section">
+        <div className="dh-container" style={{ padding: 0, maxWidth: "100%" }}>
+          <div className="stats-grid">
+            <StatCell value={12000} suffix="+" label="Developers" index={0} />
+            <StatCell value={25000} suffix="+" label="Job Listings" index={1} />
+            <StatCell
+              value={50000}
+              suffix="+"
+              label="Projects Done"
+              index={2}
+            />
+            <StatCell value={98} suffix="%" label="Satisfaction" index={3} />
+          </div>
         </div>
       </section>
 
-      {/* ===== HOW IT WORKS ===== */}
-      <section className="container relative z-10 py-16 md:py-20">
-        <SectionHeading
-          title="How It Works"
-          subtitle="Three simple steps to start your freelancing journey or find the perfect developer."
-        />
-
-        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          <div className="hidden md:block absolute top-12 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-0.5 bg-gradient-to-r from-primary-400 via-secondary-300 to-accent-400" />
-
-          {stepsData.map((step, i) => (
-            <StepCard key={step.num} step={step} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ===== FEATURES SECTION ===== */}
-      <section className="container relative z-10 py-16 md:py-20">
-        <SectionHeading
-          title="Everything You Need"
-          subtitle="Powerful tools and features designed to make freelancing seamless and rewarding."
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuresData.map((feature, i) => (
-            <FeatureCard key={feature.title} feature={feature} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ===== TESTIMONIALS SECTION ===== */}
-      <section className="container relative z-10 py-16 md:py-20">
-        <SectionHeading
-          title="What Our Community Says"
-          subtitle="Join thousands of developers and clients who trust DevHire for their projects."
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonialsData.map((t, i) => (
-            <TestimonialCard key={t.name} testimonial={t} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ===== FINAL CTA SECTION ===== */}
-      <section className="container relative z-10 py-16 md:py-24">
-        <div className="gradient-border">
-          <div className="glass-card-light rounded-2xl p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary-400/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent-400/10 rounded-full blur-3xl" />
-
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-50 mb-4">
-                Ready to Build Something{" "}
-                <span className="gradient-text">Amazing</span>?
+      {/* ── HOW IT WORKS ── */}
+      <section className="steps-section">
+        <div className="dh-container">
+          <Reveal>
+            <div className="steps-header">
+              <p className="section-eyebrow">// Process</p>
+              <h2 className="section-heading">
+                Three steps.
+                <br />
+                Zero friction.
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8">
-                Join the fastest-growing freelance marketplace for developers.
-                Start your journey today &mdash; it&rsquo;s free to sign up.
+              <p className="section-sub">
+                Whether you're shipping a product or landing your next contract,
+                you're up and running in minutes.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  to="/register"
-                  className="btn-primary btn-lg group text-base shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5"
-                >
-                  Get Started Free
-                  <span className="inline-block ml-2 transition-all group-hover:translate-x-1.5 group-hover:scale-110">
-                    &rarr;
-                  </span>
-                </Link>
-                <Link
-                  to="/devs"
-                  className="btn-ghost btn-lg border-2 border-primary-400/40 dark:border-primary-500/30 text-primary-300 dark:text-primary-400 hover:bg-primary-400/20 dark:hover:bg-primary-500/10 text-base"
-                >
-                  Browse Developers
-                </Link>
+            </div>
+          </Reveal>
+
+          <div className="steps-grid">
+            {stepsData.map((step, i) => (
+              <Reveal key={step.num} delay={i * 120}>
+                <div className="step-cell" style={{ height: "100%" }}>
+                  <div className="step-number">{step.num}</div>
+                  <span className="step-glyph">{step.glyph}</span>
+                  <h3 className="step-title">{step.title}</h3>
+                  <p className="step-desc">{step.desc}</p>
+                  {i < stepsData.length - 1 && (
+                    <div
+                      className="step-connector"
+                      style={{ display: "none" }}
+                    />
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES ── */}
+      <section className="features-section">
+        <div className="dh-container">
+          <Reveal>
+            <div className="features-header">
+              <div>
+                <p className="section-eyebrow">// Capabilities</p>
+                <h2 className="section-heading">
+                  Built for
+                  <br />
+                  how devs work.
+                </h2>
               </div>
-              <p className="mt-6 text-xs text-slate-400 dark:text-slate-500">
-                No credit card required. Free forever for developers.
+              <p className="section-sub" style={{ maxWidth: "360px" }}>
+                Every tool you need from first contact to final payment, without
+                the bloat.
               </p>
+            </div>
+          </Reveal>
+
+          <div className="features-grid">
+            {featuresData.map((f, i) => (
+              <Reveal key={f.title} delay={i * 80}>
+                <div
+                  className="feature-cell"
+                  style={{ "--accent-color": f.accent } as React.CSSProperties}
+                >
+                  <span className="feature-glyph" style={{ color: f.accent }}>
+                    {f.glyph}
+                  </span>
+                  <h3 className="feature-title">{f.title}</h3>
+                  <p className="feature-desc">{f.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="testimonials-section">
+        <div className="dh-container">
+          <Reveal>
+            <div className="testimonials-header">
+              <p className="section-eyebrow">// Community</p>
+              <h2 className="section-heading">
+                Trusted by
+                <br />
+                builders worldwide.
+              </h2>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="marquee-wrapper">
+          <div style={{ overflow: "hidden" }}>
+            <div className="marquee-track">
+              {allTestimonials.map((t, i) => (
+                <div key={`${t.name}-${i}`} className="testimonial-card">
+                  <div className="t-stars">
+                    {[...Array(5)].map((_, j) => (
+                      <span
+                        key={j}
+                        className="t-star"
+                        style={{ color: t.accent }}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <p className="t-text">"{t.text}"</p>
+                  <div className="t-author">
+                    <div className="t-avatar" style={{ background: t.accent }}>
+                      {t.initials}
+                    </div>
+                    <div>
+                      <div className="t-name">{t.name}</div>
+                      <div className="t-role">{t.role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="container relative z-10 py-8 border-t border-slate-200 dark:border-slate-800">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">✨</span>
-            <span className="font-bold gradient-text">DevHire</span>
+      {/* ── CTA ── */}
+      <section className="cta-section">
+        <div className="dh-container">
+          <Reveal>
+            <div className="cta-block">
+              <div className="cta-glow-line" />
+
+              <p className="section-eyebrow" style={{ marginBottom: "20px" }}>
+                // Ready to build?
+              </p>
+
+              <h2 className="cta-heading">
+                Your next great
+                <br />
+                project starts <span className="text-cyan">here.</span>
+              </h2>
+
+              <p className="cta-sub">
+                Join the fastest-growing freelance marketplace for developers.
+                Free to sign up. No credit card required.
+              </p>
+
+              <div className="cta-row">
+                <Link
+                  to="/register"
+                  className="dh-btn-primary"
+                  style={{ fontSize: "1rem", padding: "16px 36px" }}
+                >
+                  Get Started Free →
+                </Link>
+                <Link
+                  to="/devs"
+                  className="dh-btn-ghost"
+                  style={{ fontSize: "1rem", padding: "15px 36px" }}
+                >
+                  Browse Developers
+                </Link>
+              </div>
+
+              <p className="cta-note">
+                FREE_FOR_DEVS · NO_CARD_REQUIRED · CANCEL_ANYTIME
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="dh-footer">
+        <div className="dh-container">
+          <div className="footer-inner">
+            <Link to="/" className="footer-brand">
+              <div className="footer-brand-mark">DH</div>
+              DevHire
+            </Link>
+
+            <ul className="footer-links">
+              <li>
+                <Link to="/jobs">Browse Jobs</Link>
+              </li>
+              <li>
+                <Link to="/devs">Find Devs</Link>
+              </li>
+              <li>
+                <Link to="/register">Sign Up</Link>
+              </li>
+            </ul>
+
+            <p className="footer-copy">
+              © {new Date().getFullYear()} DevHire. All rights reserved.
+            </p>
           </div>
-          <div className="flex gap-6 text-sm text-slate-400">
-            <Link
-              to="/jobs"
-              className="hover:text-primary-500 transition-colors"
-            >
-              Browse Jobs
-            </Link>
-            <Link
-              to="/devs"
-              className="hover:text-primary-500 transition-colors"
-            >
-              Find Devs
-            </Link>
-            <Link
-              to="/register"
-              className="hover:text-primary-500 transition-colors"
-            >
-              Sign Up
-            </Link>
-          </div>
-          <p className="text-xs text-slate-400">
-            &copy; {new Date().getFullYear()} DevHire. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>
