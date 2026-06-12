@@ -778,15 +778,7 @@
 .marquee-track {
   display: flex;
   gap: 16px;
-  animation: marquee-scroll 40s linear infinite;
   width: max-content;
-}
-
-.marquee-track:hover { animation-play-state: paused; }
-
-@keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 .testimonial-card {
@@ -859,6 +851,7 @@
 /* Fade edges on marquee */
 .marquee-wrapper {
   position: relative;
+  overflow: hidden;
 }
 
 .marquee-wrapper::before,
@@ -1022,24 +1015,13 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Reveal animation ── */
-.reveal-ready {
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal-hidden {
-  opacity: 0;
-  transform: translateY(24px);
-}
-
-.reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
+/* ── Word split (GSAP targets) ── */
+.word-split {
+  display: inline-block;
 }
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .trace-line, .circuit-node, .dash-card, .marquee-track { animation: none !important; }
-  .reveal-hidden { opacity: 1; transform: none; }
+  .trace-line, .circuit-node, .dash-card { animation: none !important; }
 }
 

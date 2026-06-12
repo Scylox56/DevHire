@@ -12,6 +12,7 @@ html {
     "Segoe UI",
     Roboto,
     sans-serif;
+  overflow-x: hidden;
 }
 
 /* Smooth theme transition */
