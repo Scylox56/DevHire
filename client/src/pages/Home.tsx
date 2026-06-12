@@ -299,7 +299,7 @@ export default function Home() {
   const { user } = useAuth();
   if (user) return <Navigate to="/dashboard" replace />;
 
-  // Duplicate testimonials for seamless marquee loop
+  // Duplicate testimonials
   const allTestimonials = [...testimonialsData, ...testimonialsData];
 
   return (
