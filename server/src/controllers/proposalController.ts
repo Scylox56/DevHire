@@ -49,7 +49,7 @@ export const getProposalsForJob = async (req: AuthRequest, res: Response) => {
       res.status(404).json({ message: 'Job not found' });
       return;
     }
-    if (job.client.toString() !== req.user!._id.toString() && req.user!.role !== 'admin') {
+    if (job.client.toString() !== req.user!._id.toString() && !['moderator', 'super_admin'].includes(req.user!.role)) {
       res.status(403).json({ message: 'Not authorized' });
       return;
     }

@@ -5,7 +5,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: 'client' | 'dev' | 'admin';
+  role: 'client' | 'dev' | 'moderator' | 'super_admin';
   avatar?: string;
   title?: string;
   bio?: string;
@@ -15,6 +15,10 @@ export interface IUser extends Document {
   completedJobs: number;
   rating: number;
   reviewCount: number;
+  isActive: boolean;
+  isVerified: boolean;
+  emailVerified: boolean;
+  suspendedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(password: string): Promise<boolean>;
@@ -25,7 +29,7 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, minlength: 6 },
-    role: { type: String, enum: ['client', 'dev', 'admin'], default: 'dev' },
+    role: { type: String, enum: ['client', 'dev', 'moderator', 'super_admin'], default: 'dev' },
     avatar: { type: String },
     title: { type: String, trim: true },
     bio: { type: String },
@@ -41,6 +45,10 @@ const userSchema = new Schema<IUser>(
     completedJobs: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
+    suspendedAt: { type: Date },
   },
   { timestamps: true }
 );

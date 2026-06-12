@@ -36,30 +36,26 @@ export default function PostJob() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 py-12">
-      <div className="container max-w-2xl">
-        <Link
-          to="/jobs"
-          className="text-slate-600 dark:text-slate-400 hover:text-primary-500 text-sm inline-flex items-center gap-1 mb-8"
-        >
+    <div className="dh-root" style={{ padding: "48px 0" }}>
+      <div className="dh-container" style={{ maxWidth: 640 }}>
+        <Link to="/jobs" className="dh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 24, fontSize: "0.8rem" }}>
           ← Back to Jobs
         </Link>
 
-        <div className="glass-card-light mb-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">📝 Post a New Job</h1>
-            <p className="text-slate-600 dark:text-slate-400">
+        <div className="dh-card" style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 32 }}>
+            <h1 className="dh-page-header-title" style={{ marginBottom: 8 }}>Post a New Job</h1>
+            <p className="dh-page-header-sub">
               Tell developers about your project and find the perfect match
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Job Title */}
-            <div className="form-group">
-              <label className="form-label">Project Title</label>
+          <form onSubmit={handleSubmit}>
+            <div className="dh-form-group">
+              <label className="dh-label">Project Title</label>
               <input
                 type="text"
-                className="form-input"
+                className="dh-input"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Build React E-commerce Dashboard"
@@ -67,11 +63,10 @@ export default function PostJob() {
               />
             </div>
 
-            {/* Description */}
-            <div className="form-group">
-              <label className="form-label">Project Description</label>
+            <div className="dh-form-group">
+              <label className="dh-label">Project Description</label>
               <textarea
-                className="form-textarea"
+                className="dh-textarea"
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -80,12 +75,11 @@ export default function PostJob() {
               />
             </div>
 
-            {/* Tech Stack */}
-            <div className="form-group">
-              <label className="form-label">Tech Stack (comma-separated)</label>
+            <div className="dh-form-group">
+              <label className="dh-label">Tech Stack (comma-separated)</label>
               <input
                 type="text"
-                className="form-input"
+                className="dh-input"
                 value={techStack}
                 onChange={(e) => setTechStack(e.target.value)}
                 placeholder="e.g., React, Node.js, MongoDB, TypeScript"
@@ -93,13 +87,12 @@ export default function PostJob() {
               />
             </div>
 
-            {/* Budget and Timeline */}
-            <div className="grid grid-2 gap-6">
-              <div className="form-group">
-                <label className="form-label">Budget ($)</label>
+            <div className="dh-grid-2" style={{ gap: 24 }}>
+              <div className="dh-form-group">
+                <label className="dh-label">Budget ($)</label>
                 <input
                   type="number"
-                  className="form-input"
+                  className="dh-input"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
                   min={1}
@@ -107,11 +100,11 @@ export default function PostJob() {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Timeline (days)</label>
+              <div className="dh-form-group">
+                <label className="dh-label">Timeline (days)</label>
                 <input
                   type="number"
-                  className="form-input"
+                  className="dh-input"
                   value={timeline}
                   onChange={(e) => setTimeline(e.target.value)}
                   min={1}
@@ -121,39 +114,34 @@ export default function PostJob() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
-              className="btn btn-primary w-full flex items-center justify-center gap-2 mt-8"
+              className="dh-btn-primary"
+              style={{ width: "100%", justifyContent: "center", marginTop: 16 }}
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <span className="spinner h-4 w-4"></span>
+                  <span className="dh-spinner dh-spinner-sm"></span>
                   Posting your job...
                 </>
               ) : (
-                <>🚀 Post Job</>
+                <>Post Job</>
               )}
             </button>
           </form>
         </div>
 
-        {/* Tips */}
-        <div className="grid grid-2 gap-4">
-          <div className="glass rounded-lg p-4">
-            <span className="text-2xl block mb-2">💡</span>
-            <h4 className="font-semibold mb-1">Be Specific</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Clear requirements attract qualified developers
-            </p>
+        <div className="dh-grid-2" style={{ gap: 16 }}>
+          <div className="dh-chip" style={{ flexDirection: "column", textAlign: "center", padding: "20px 16px" }}>
+            <span className="text-cyan" style={{ fontSize: "1.4rem", marginBottom: 8, fontWeight: 700 }}>✦</span>
+            <h4 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)", margin: "0 0 4px" }}>Be Specific</h4>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>Clear requirements attract qualified developers</p>
           </div>
-          <div className="glass rounded-lg p-4">
-            <span className="text-2xl block mb-2">⭐</span>
-            <h4 className="font-semibold mb-1">Set Fair Budget</h4>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Competitive budget gets better proposals
-            </p>
+          <div className="dh-chip" style={{ flexDirection: "column", textAlign: "center", padding: "20px 16px" }}>
+            <span className="text-cyan" style={{ fontSize: "1.4rem", marginBottom: 8, fontWeight: 700 }}>★</span>
+            <h4 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)", margin: "0 0 4px" }}>Set Fair Budget</h4>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>Competitive budget gets better proposals</p>
           </div>
         </div>
       </div>

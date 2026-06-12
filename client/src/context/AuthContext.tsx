@@ -5,7 +5,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'client' | 'dev' | 'admin';
+  role: 'client' | 'dev' | 'moderator' | 'super_admin';
   avatar?: string;
   title?: string;
   skills?: string[];
@@ -13,6 +13,9 @@ interface User {
   rating?: number;
   reviewCount?: number;
   completedJobs?: number;
+  isActive?: boolean;
+  isVerified?: boolean;
+  emailVerified?: boolean;
 }
 
 interface AuthContextType {

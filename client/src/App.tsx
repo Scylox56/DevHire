@@ -14,6 +14,14 @@ import ClientDashboard from "./pages/dashboard/ClientDashboard";
 import DevDashboard from "./pages/dashboard/DevDashboard";
 import Profile from "./pages/Profile";
 import Home from "./pages/Home";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminUserDetail from "./pages/admin/AdminUserDetail";
+import AdminJobs from "./pages/admin/AdminJobs";
+import AdminJobDetail from "./pages/admin/AdminJobDetail";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminReports from "./pages/admin/AdminReports";
 
 export default function App() {
   return (
@@ -59,6 +67,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute roles={["moderator", "super_admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:id" element={<AdminUserDetail />} />
+          <Route path="jobs" element={<AdminJobs />} />
+          <Route path="jobs/:id" element={<AdminJobDetail />} />
+          <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="reports" element={<AdminReports />} />
+        </Route>
       </Routes>
     </>
   );
@@ -68,5 +92,6 @@ function DashboardRouter() {
   const { user } = useAuth();
   if (user?.role === "client") return <ClientDashboard />;
   if (user?.role === "dev") return <DevDashboard />;
+  if (user?.role === "moderator" || user?.role === "super_admin") return <Navigate to="/admin" replace />;
   return <Navigate to="/" replace />;
 }

@@ -31,104 +31,88 @@ export default function DevList() {
 
   if (loading) {
     return (
-      <div className="container py-20 text-center">
-        <div className="spinner mx-auto mb-4 h-8 w-8"></div>
-        <p className="text-slate-600 dark:text-slate-400">
-          Loading talented developers...
-        </p>
+      <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <div className="dh-spinner" style={{ margin: "0 auto 16px" }}></div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading talented developers...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 py-12">
-      <div className="container">
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">
-            👨‍💻 Find Developers
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Discover talented developers for your projects
-          </p>
+    <div className="dh-root" style={{ padding: "48px 0" }}>
+      <div className="dh-container">
+        <div style={{ marginBottom: 48 }}>
+          <h1 className="dh-page-header-title">Find Developers</h1>
+          <p className="dh-page-header-sub">Discover talented developers for your projects</p>
         </div>
 
         {devs.length === 0 ? (
-          <div className="glass-card-light text-center py-16">
-            <span className="text-5xl block mb-3">🔍</span>
-            <h3 className="text-xl font-semibold mb-2">
-              No Developers Available
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400">
-              Check back soon for talented developers
-            </p>
+          <div className="dh-empty">
+            <h3 className="dh-empty-title">No Developers Available</h3>
+            <p className="dh-empty-text">Check back soon for talented developers</p>
           </div>
         ) : (
-          <div className="grid-responsive">
+          <div className="dh-grid-responsive">
             {devs.map((dev) => (
               <Link
                 to={`/devs/${dev._id}`}
                 key={dev._id}
-                className="glass-card-light group cursor-pointer overflow-hidden"
+                className="dh-card dh-card-hover"
+                style={{ display: "block", textDecoration: "none" }}
               >
-                {/* Header with avatar and name */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="avatar text-lg">{dev.name[0]}</div>
-                  <div className="flex-1">
-                    <div className="font-bold text-lg group-hover:gradient-text transition-all">
+                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                  <div className="dh-avatar" style={{ width: 44, height: 44, fontSize: "0.9rem" }}>
+                    {dev.avatar ? (
+                      <img src={dev.avatar} alt={dev.name} className="dh-avatar-img" />
+                    ) : (
+                      dev.name[0]
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em", color: "var(--text-primary)", transition: "color 0.2s" }}>
                       {dev.name}
                     </div>
-                    {dev.title && (
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        {dev.title}
-                      </div>
-                    )}
+                    {dev.title && <div style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>{dev.title}</div>}
                   </div>
                 </div>
 
-                {/* Bio */}
                 {dev.bio && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                     {dev.bio}
                   </p>
                 )}
 
-                {/* Skills */}
-                <div className="flex gap-2 mb-4 flex-wrap">
+                <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
                   {dev.skills.slice(0, 4).map((s) => (
-                    <span key={s} className="badge badge-primary text-xs">
-                      {s}
-                    </span>
+                    <span key={s} className="dh-pill">{s}</span>
                   ))}
-                  {dev.skills.length > 4 && (
-                    <span className="badge bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
-                      +{dev.skills.length - 4}
-                    </span>
-                  )}
+                  {dev.skills.length > 4 && <span className="dh-pill">+{dev.skills.length - 4}</span>}
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 text-center">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, paddingTop: 16, borderTop: "1px solid var(--border)", textAlign: "center" }}>
                   <div>
-                    <p className="font-bold text-primary-500 dark:text-primary-400">
-                      ⭐ {dev.rating.toFixed(1)}
+                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "var(--cyan)", margin: 0 }}>
+                      ★ {dev.rating.toFixed(1)}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500">
+                    <p style={{ fontSize: "0.65rem", color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
                       {dev.reviewCount} reviews
                     </p>
                   </div>
                   <div>
-                    <p className="font-bold text-secondary-500 dark:text-secondary-400">
+                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "var(--violet)", margin: 0 }}>
                       {dev.completedJobs}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500">
+                    <p style={{ fontSize: "0.65rem", color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
                       Projects
                     </p>
                   </div>
                   <div>
-                    <p className="font-bold gradient-text">
+                    <p className="text-cyan" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.95rem", margin: 0 }}>
                       {dev.hourlyRate ? `$${dev.hourlyRate}` : "—"}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500">
+                    <p style={{ fontSize: "0.65rem", color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
                       {dev.hourlyRate ? "/hr" : "Rate"}
                     </p>
                   </div>

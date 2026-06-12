@@ -29,17 +29,9 @@ interface Job {
   submissionNote?: string;
   submittedAt?: string;
   createdAt: string;
+  hasReviewed?: boolean;
+  hasProposed?: boolean;
 }
-
-// Reusable input class
-const inputCls =
-  "w-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border border-slate-600 rounded-lg px-3 py-2 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition";
-
-const textareaCls =
-  "w-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border border-slate-600 rounded-lg px-3 py-2 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition resize-none";
-
-const labelCls =
-  "block text-sm font-medium text-slate-900 dark:text-slate-300 mb-1";
 
 export default function JobDetail() {
   const { id } = useParams<{ id: string }>();
@@ -59,6 +51,11 @@ export default function JobDetail() {
   const [editDescription, setEditDescription] = useState("");
   const [editTechStack, setEditTechStack] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const reloadJob = () => {
     if (!id) return;
@@ -99,8 +96,9 @@ export default function JobDetail() {
         bidAmount,
         estimatedTimeline,
       });
-      toast.success("Proposal submitted!");
       setShowProposalForm(false);
+      setShowSuccessModal(true);
+      reloadJob();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to submit proposal");
     }
@@ -175,11 +173,30 @@ export default function JobDetail() {
 
   const handleMarkComplete = async () => {
     try {
-      const { data } = await api.put(`/jobs/${id}/complete`);
-      setJob(data);
+      await api.put(`/jobs/${id}/complete`);
       toast.success("Job marked as complete!");
+      reloadJob();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to mark complete");
+    }
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (reviewRating < 1) {
+      toast.error("Please select a rating");
+      return;
+    }
+    setReviewSubmitting(true);
+    try {
+      await api.post(`/reviews/${id}`, { rating: reviewRating, comment: reviewComment });
+      toast.success("Review submitted!");
+      setShowReviewForm(false);
+      setJob((prev) => (prev ? { ...prev, hasReviewed: true } : prev));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to submit review");
+    } finally {
+      setReviewSubmitting(false);
     }
   };
 
@@ -187,15 +204,15 @@ export default function JobDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
-        <div className="spinner mx-auto mb-4 h-8 w-8"></div>
+      <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="dh-spinner"></div>
       </div>
     );
   }
   if (!job) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
-        <p className="text-slate-600 dark:text-slate-400">Job not found</p>
+      <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--text-muted)" }}>Job not found</p>
       </div>
     );
   }
@@ -203,382 +220,292 @@ export default function JobDetail() {
   const isOwner = String(user?._id) === String(job.client._id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 py-12">
-      <div className="container">
-        <Link
-          to="/jobs"
-          className="text-slate-500 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400 text-sm transition-colors"
-        >
+    <div className="dh-root" style={{ padding: "48px 0" }}>
+      <div className="dh-container">
+        <Link to="/jobs" className="dh-link" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.8rem" }}>
           &larr; Back to Jobs
         </Link>
 
-        <div className="glass-card-light mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <span className={`badge badge-${job.status}`}>
+        <div className="dh-card" style={{ marginTop: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+            <span className="dh-badge" data-status={job.status}>
               {job.status.replace("_", " ").toUpperCase()}
             </span>
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {isOwner && job.status === "open" && !editing && (
                 <>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={handleStartEdit}
-                  >
-                    Edit
-                  </button>
+                  <button className="dh-btn-ghost dh-btn-sm" onClick={handleStartEdit}>Edit</button>
                   {deleting ? (
-                    <div className="flex items-center gap-1">
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={handleDelete}
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => setDeleting(false)}
-                      >
-                        Cancel
-                      </button>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button className="dh-btn-danger dh-btn-sm" onClick={handleDelete}>Confirm</button>
+                      <button className="dh-btn-ghost dh-btn-sm" onClick={() => setDeleting(false)}>Cancel</button>
                     </div>
                   ) : (
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => setDeleting(true)}
-                    >
-                      Delete
-                    </button>
+                    <button className="dh-btn-danger dh-btn-sm" onClick={() => setDeleting(true)}>Delete</button>
                   )}
                 </>
               )}
-              <span className="text-sm text-slate-500 dark:text-slate-400">
+              <span style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>
                 {new Date(job.createdAt).toLocaleDateString()}
               </span>
             </div>
           </div>
 
           {editing ? (
-            <div className="space-y-4 mb-5">
-              <div className="space-y-1">
-                <label className={labelCls}>Title</label>
-                <input
-                  className={inputCls}
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                />
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 20 }}>
+              <div>
+                <label className="dh-label">Title</label>
+                <input className="dh-input" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
               </div>
-              <div className="space-y-1">
-                <label className={labelCls}>Description</label>
-                <textarea
-                  className={textareaCls}
-                  rows={5}
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                />
+              <div>
+                <label className="dh-label">Description</label>
+                <textarea className="dh-textarea" rows={5} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
               </div>
-              <div className="space-y-1">
-                <label className={labelCls}>Tech Stack (comma separated)</label>
-                <input
-                  className={inputCls}
-                  value={editTechStack}
-                  onChange={(e) => setEditTechStack(e.target.value)}
-                  placeholder="React, Node.js, MongoDB"
-                />
+              <div>
+                <label className="dh-label">Tech Stack (comma separated)</label>
+                <input className="dh-input" value={editTechStack} onChange={(e) => setEditTechStack(e.target.value)} placeholder="React, Node.js, MongoDB" />
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={handleSaveEdit}
-                >
-                  Save
-                </button>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => setEditing(false)}
-                >
-                  Cancel
-                </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="dh-btn-primary dh-btn-sm" onClick={handleSaveEdit}>Save</button>
+                <button className="dh-btn-ghost dh-btn-sm" onClick={() => setEditing(false)}>Cancel</button>
               </div>
             </div>
           ) : (
             <>
-              <h1 className="text-3xl font-bold mb-3">{job.title}</h1>
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
-                {job.description}
-              </p>
-              <div className="flex flex-wrap gap-2 mb-5">
+              <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.6rem", letterSpacing: "-0.02em", color: "var(--text-primary)", margin: "0 0 12px" }}>{job.title}</h1>
+              <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: 1.7, marginBottom: 20 }}>{job.description}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
                 {job.techStack.map((tech) => (
-                  <span key={tech} className="badge badge-primary">
-                    {tech}
-                  </span>
+                  <span key={tech} className="dh-pill">{tech}</span>
                 ))}
               </div>
             </>
           )}
 
-          <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="avatar w-8 h-8 text-xs">{job.client.name[0]}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="dh-avatar dh-avatar-sm">
+                {job.client.avatar ? (
+                  <img src={job.client.avatar} alt={job.client.name} className="dh-avatar-img" />
+                ) : (
+                  job.client.name[0]
+                )}
+              </div>
               <div>
-                <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {job.client.name}
-                </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  ⭐ {job.client.rating.toFixed(1)} ({job.client.reviewCount}{" "}
-                  reviews)
+                <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>{job.client.name}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>
+                  ★ {job.client.rating.toFixed(1)} ({job.client.reviewCount} reviews)
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold gradient-text">
-                ${job.budget.toLocaleString()}
-              </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">
-                {job.timeline} days
-              </div>
+            <div style={{ textAlign: "right" }}>
+              <div className="text-cyan" style={{ fontSize: "1.5rem", fontWeight: 700 }}>${job.budget.toLocaleString()}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>{job.timeline} days</div>
             </div>
           </div>
 
           {/* Proposal Form */}
           {user && !isOwner && job.status === "open" && user.role === "dev" && (
-            <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowProposalForm(!showProposalForm)}
-              >
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
+              {job.hasProposed ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--cyan)" }}>✓ Proposal submitted</span>
+                </div>
+              ) : (
+                <>
+              <button className="dh-btn-primary" onClick={() => {
+                if (job.hasProposed) {
+                  toast.error("You have already submitted a proposal for this job");
+                  return;
+                }
+                setShowProposalForm(!showProposalForm);
+              }}>
                 {showProposalForm ? "Cancel" : "Submit Proposal"}
               </button>
               {showProposalForm && (
-                <form
-                  onSubmit={handleProposalSubmit}
-                  className="mt-6 space-y-5"
-                >
-                  <div className="space-y-1">
-                    <label className={labelCls}>Cover Letter</label>
-                    <textarea
-                      className={textareaCls}
-                      rows={5}
-                      value={coverLetter}
-                      onChange={(e) => setCoverLetter(e.target.value)}
-                      placeholder="Tell the client why you're the best fit..."
-                      required
-                    />
+                <form onSubmit={handleProposalSubmit} style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <label className="dh-label">Cover Letter</label>
+                    <textarea className="dh-textarea" rows={5} value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)} placeholder="Tell the client why you're the best fit..." required />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className={labelCls}>Bid Amount ($)</label>
-                      <input
-                        type="number"
-                        className={inputCls}
-                        value={bidAmount ?? ""}
-                        onChange={(e) =>
-                          setBidAmount(
-                            e.target.value ? Number(e.target.value) : null,
-                          )
-                        }
-                        min={1}
-                        placeholder="Enter your bid amount"
-                        required
-                      />
+                  <div className="dh-grid-2">
+                    <div>
+                      <label className="dh-label">Bid Amount ($)</label>
+                      <input type="number" className="dh-input" value={bidAmount ?? ""} onChange={(e) => setBidAmount(e.target.value ? Number(e.target.value) : null)} min={1} placeholder="Enter your bid amount" required />
                     </div>
-                    <div className="space-y-1">
-                      <label className={labelCls}>
-                        Estimated Timeline (days)
-                      </label>
-                      <input
-                        type="number"
-                        className={inputCls}
-                        value={estimatedTimeline}
-                        onChange={(e) =>
-                          setEstimatedTimeline(Number(e.target.value))
-                        }
-                        min={1}
-                        required
-                      />
+                    <div>
+                      <label className="dh-label">Estimated Timeline (days)</label>
+                      <input type="number" className="dh-input" value={estimatedTimeline} onChange={(e) => setEstimatedTimeline(Number(e.target.value))} min={1} required />
                     </div>
                   </div>
-                  <button type="submit" className="btn btn-success">
-                    Submit Proposal
-                  </button>
+                  <button type="submit" className="dh-btn-success" style={{ alignSelf: "flex-start" }}>Submit Proposal</button>
                 </form>
+              )}
+                </>
               )}
             </div>
           )}
 
           {/* Awarded section with actions */}
           {job.awardedTo && (
-            <div className="mt-6 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-              <div className="glass-card bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="avatar w-10 h-10 text-sm">
-                      {job.awardedTo.name[0]}
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
+              <div className="dh-card" style={{ background: "rgba(0,255,209,0.03)", padding: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div className="dh-avatar" style={{ width: 40, height: 40, fontSize: "0.8rem" }}>
+                      {job.awardedTo.avatar ? (
+                        <img src={job.awardedTo.avatar} alt={job.awardedTo.name} className="dh-avatar-img" />
+                      ) : (
+                        job.awardedTo.name[0]
+                      )}
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-800 dark:text-slate-100">
-                        Awarded to {job.awardedTo.name}
-                      </div>
-                      {job.awardedTo.title && (
-                        <div className="text-sm text-slate-500 dark:text-slate-400">
-                          {job.awardedTo.title}
-                        </div>
-                      )}
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--text-primary)" }}>Awarded to {job.awardedTo.name}</div>
+                      {job.awardedTo.title && <div style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}>{job.awardedTo.title}</div>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div style={{ display: "flex", gap: 8 }}>
                     {(isOwner || isAwardedDev) && (
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={handleOpenConversation}
-                      >
-                        Send Message
-                      </button>
+                      <button className="dh-btn-primary dh-btn-sm" onClick={handleOpenConversation}>Send Message</button>
                     )}
                     {isOwner && job.status === "in_progress" && (
-                      <button
-                        className="btn btn-success btn-sm"
-                        onClick={handleMarkComplete}
-                      >
-                        Mark Complete
-                      </button>
+                      <button className="dh-btn-success dh-btn-sm" onClick={handleMarkComplete}>Mark Complete</button>
                     )}
-                    {isOwner &&
-                      (job.status === "completed" ||
-                        job.status === "in_progress") &&
-                      job.submissionNote && (
-                        <span className="badge badge-success">
-                          Work Submitted
-                        </span>
-                      )}
-                    {isAwardedDev &&
-                      job.status === "in_progress" &&
-                      !showSubmitForm && (
-                        <button
-                          className="btn btn-accent btn-sm"
-                          onClick={() => setShowSubmitForm(true)}
-                        >
-                          Submit Work
-                        </button>
-                      )}
+                    {isOwner && (job.status === "completed" || job.status === "in_progress") && job.submissionNote && (
+                      <span className="dh-badge" data-status="completed">Work Submitted</span>
+                    )}
+                    {isAwardedDev && job.status === "in_progress" && !showSubmitForm && (
+                      <button className="dh-btn-primary dh-btn-sm" onClick={() => setShowSubmitForm(true)}>Submit Work</button>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Submit work form */}
               {isAwardedDev && showSubmitForm && (
-                <form
-                  onSubmit={handleSubmitWork}
-                  className="mt-4 p-4 glass-card-light"
-                >
-                  <div className="space-y-1 mb-4">
-                    <label className={labelCls}>Submission Notes</label>
-                    <textarea
-                      className={textareaCls}
-                      rows={4}
-                      value={submissionNote}
-                      onChange={(e) => setSubmissionNote(e.target.value)}
-                      placeholder="Describe what was completed, include links or instructions..."
-                      required
-                    />
+                <form onSubmit={handleSubmitWork} className="dh-card" style={{ marginTop: 16 }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <label className="dh-label">Submission Notes</label>
+                    <textarea className="dh-textarea" rows={4} value={submissionNote} onChange={(e) => setSubmissionNote(e.target.value)} placeholder="Describe what was completed, include links or instructions..." required />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button type="submit" className="btn btn-success">
-                      Submit Work
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      onClick={() => setShowSubmitForm(false)}
-                    >
-                      Cancel
-                    </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button type="submit" className="dh-btn-success">Submit Work</button>
+                    <button type="button" className="dh-btn-ghost" onClick={() => setShowSubmitForm(false)}>Cancel</button>
                   </div>
                 </form>
               )}
 
               {/* Submission display for client */}
               {isOwner && job.submissionNote && (
-                <div className="mt-4 p-4 glass-card-light">
-                  <h3 className="font-semibold text-slate-800 dark:text-slate-100 mb-2">
-                    Work Submission
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
-                    {job.submissionNote}
-                  </p>
-                  {job.submittedAt && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                      Submitted on{" "}
-                      {new Date(job.submittedAt).toLocaleDateString()}
-                    </p>
-                  )}
+                <div className="dh-card" style={{ marginTop: 16 }}>
+                  <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)", margin: "0 0 8px" }}>Work Submission</h3>
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", whiteSpace: "pre-wrap", margin: 0 }}>{job.submissionNote}</p>
+                  {job.submittedAt && <p style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginTop: 8 }}>Submitted on {new Date(job.submittedAt).toLocaleDateString()}</p>}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Review Form */}
+          {user && job.status === "completed" && (isOwner || isAwardedDev) && (
+            <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
+              {job.hasReviewed ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--cyan)" }}>✓ Review submitted</span>
+                </div>
+              ) : (
+                <>
+                  <button className="dh-btn-primary dh-btn-sm" onClick={() => setShowReviewForm(!showReviewForm)}>
+                    {showReviewForm ? "Cancel" : "Write a Review"}
+                  </button>
+                  {showReviewForm && (
+                    <form onSubmit={handleReviewSubmit} style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 20 }}>
+                      <div>
+                        <label className="dh-label">Rating</label>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              onClick={() => setReviewRating(star)}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "1.6rem",
+                                color: star <= reviewRating ? "var(--cyan)" : "var(--text-dim)",
+                                transition: "color 0.15s",
+                                userSelect: "none",
+                              }}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="dh-label">Comment (optional)</label>
+                        <textarea
+                          className="dh-textarea"
+                          rows={4}
+                          value={reviewComment}
+                          onChange={(e) => setReviewComment(e.target.value)}
+                          placeholder="Share your feedback about working together..."
+                        />
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button type="submit" className="dh-btn-primary dh-btn-sm" disabled={reviewSubmitting || reviewRating < 1}>
+                          {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                        </button>
+                        <button type="button" className="dh-btn-ghost dh-btn-sm" onClick={() => setShowReviewForm(false)}>Cancel</button>
+                      </div>
+                    </form>
+                  )}
+                </>
               )}
             </div>
           )}
         </div>
 
         {isOwner && job.status === "open" && (
-          <div className="glass-card-light mt-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">
+          <div className="dh-card" style={{ marginTop: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.3rem", color: "var(--text-primary)", margin: 0 }}>
                 Proposals ({proposals.length})
               </h2>
-              <button className="btn btn-ghost btn-sm" onClick={fetchProposals}>
-                Refresh
-              </button>
+              <button className="dh-btn-ghost dh-btn-sm" onClick={fetchProposals}>Refresh</button>
             </div>
             {proposals.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-slate-500 dark:text-slate-400">
-                  No proposals yet
-                </p>
+              <div style={{ textAlign: "center", padding: "48px 0" }}>
+                <p style={{ color: "var(--text-dim)" }}>No proposals yet</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {proposals.map((p: any) => (
-                  <div key={p._id} className="glass-card-light">
-                    <div className="flex items-start justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="avatar w-10 h-10 text-sm">
-                          {p.dev.name[0]}
+                  <div key={p._id} className="dh-card" style={{ padding: 20 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div className="dh-avatar" style={{ width: 40, height: 40, fontSize: "0.8rem" }}>
+                          {p.dev.avatar ? (
+                            <img src={p.dev.avatar} alt={p.dev.name} className="dh-avatar-img" />
+                          ) : (
+                            p.dev.name[0]
+                          )}
                         </div>
                         <div>
-                          <Link
-                            to={`/devs/${p.dev._id}`}
-                            className="font-semibold text-slate-800 dark:text-slate-100 hover:text-primary-500 dark:hover:text-primary-400"
-                          >
-                            {p.dev.name}
-                          </Link>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {p.dev.title} • ⭐ {p.dev.rating.toFixed(1)}
-                          </div>
+                          <Link to={`/devs/${p.dev._id}`} className="dh-link" style={{ fontWeight: 600, color: "var(--text-primary)" }}>{p.dev.name}</Link>
+                          <div style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>{p.dev.title} • ★ {p.dev.rating.toFixed(1)}</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold text-lg gradient-text">
-                          ${p.bidAmount.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                          {p.estimatedTimeline} days
-                        </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div className="text-cyan" style={{ fontWeight: 700, fontSize: "1.05rem" }}>${p.bidAmount.toLocaleString()}</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>{p.estimatedTimeline} days</div>
                       </div>
                     </div>
                     {p.coverLetter && (
-                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-3">
-                        {p.coverLetter}
-                      </p>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: 12 }}>{p.coverLetter}</p>
                     )}
-                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
-                      <span className={`badge badge-${p.status}`}>
-                        {p.status}
-                      </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+                      <span className="dh-badge" data-status={p.status}>{p.status}</span>
                       {p.status === "pending" && (
-                        <button
-                          className="btn btn-success btn-sm"
-                          onClick={() => handleAcceptProposal(p._id)}
-                        >
-                          Accept Proposal
-                        </button>
+                        <button className="dh-btn-success dh-btn-sm" onClick={() => handleAcceptProposal(p._id)}>Accept Proposal</button>
                       )}
                     </div>
                   </div>
@@ -588,6 +515,39 @@ export default function JobDetail() {
           </div>
         )}
       </div>
+
+      {showSuccessModal && (
+        <div
+          style={{
+            position: "fixed", inset: 0, zIndex: 100,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowSuccessModal(false)}
+        >
+          <div
+            className="dh-card"
+            style={{ maxWidth: 440, width: "90%", textAlign: "center", padding: 40 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-cyan" style={{ fontSize: "2.5rem", marginBottom: 16, fontWeight: 700 }}>✓</div>
+            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "var(--text-primary)", margin: "0 0 8px" }}>
+              Proposal Submitted!
+            </h2>
+            <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: 1.6, margin: "0 0 24px" }}>
+              Your proposal has been sent to the client. They'll review it and may reach out via messages if interested.
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button onClick={() => setShowSuccessModal(false)} className="dh-btn-primary">
+                Got it
+              </button>
+              <button onClick={() => { setShowSuccessModal(false); navigate("/messages"); }} className="dh-btn-ghost">
+                View Messages
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

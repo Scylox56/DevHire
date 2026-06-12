@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import Job from '../models/Job';
 import Proposal from '../models/Proposal';
+import Review from '../models/Review';
 import { AuthRequest } from '../middleware/auth';
 
 export const createJob = async (req: AuthRequest, res: Response) => {
@@ -61,7 +62,24 @@ export const getJobById = async (req: AuthRequest, res: Response) => {
       res.status(404).json({ message: 'Job not found' });
       return;
     }
-    res.json(job);
+
+    let hasReviewed = false;
+    let hasProposed = false;
+    if (req.user) {
+      const userId = req.user._id.toString();
+      const isClient = job.client._id.toString() === userId;
+      const isDev = job.awardedTo?._id?.toString() === userId;
+      if (isClient || isDev) {
+        const review = await Review.findOne({ job: job._id, reviewer: userId });
+        hasReviewed = !!review;
+      }
+      if (job.status === 'open' && !isClient) {
+        const proposal = await Proposal.findOne({ job: job._id, dev: userId });
+        hasProposed = !!proposal;
+      }
+    }
+
+    res.json({ ...job.toObject(), hasReviewed, hasProposed });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -74,7 +92,7 @@ export const updateJob = async (req: AuthRequest, res: Response) => {
       res.status(404).json({ message: 'Job not found' });
       return;
     }
-    if (job.client.toString() !== req.user!._id.toString() && req.user!.role !== 'admin') {
+    if (job.client.toString() !== req.user!._id.toString() && !['moderator', 'super_admin'].includes(req.user!.role)) {
       res.status(403).json({ message: 'Not authorized' });
       return;
     }
@@ -97,7 +115,7 @@ export const deleteJob = async (req: AuthRequest, res: Response) => {
       res.status(404).json({ message: 'Job not found' });
       return;
     }
-    if (job.client.toString() !== req.user!._id.toString() && req.user!.role !== 'admin') {
+    if (job.client.toString() !== req.user!._id.toString() && !['moderator', 'super_admin'].includes(req.user!.role)) {
       res.status(403).json({ message: 'Not authorized' });
       return;
     }

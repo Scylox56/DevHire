@@ -89,28 +89,26 @@ export default function Messages() {
   const otherUser = selectedConv ? otherPerson(selectedConv) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div className="dh-root">
       <div className="h-screen flex overflow-hidden">
         {/* Conversations Sidebar */}
-        <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 glass-card-light rounded-none flex flex-col">
-          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="text-2xl font-bold gradient-text">💬 Messages</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              {conversations.length} conversation
-              {conversations.length !== 1 ? "s" : ""}
+        <div className="w-80" style={{ borderRight: "1px solid var(--border)", background: "var(--surface)", display: "flex", flexDirection: "column" }}>
+          <div className="p-6 border-b" style={{ borderColor: "var(--border)" }}>
+            <h2 className="text-cyan" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.4rem", margin: "0 0 4px" }}>
+              Messages
+            </h2>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>
+              {conversations.length} conversation{conversations.length !== 1 ? "s" : ""}
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
-              <div className="p-6 text-center">
-                <span className="text-3xl block mb-2">📭</span>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">
-                  No conversations yet
-                </p>
+              <div style={{ padding: "24px", textAlign: "center" }}>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-dim)" }}>No conversations yet</p>
               </div>
             ) : (
-              <div className="p-2">
+              <div style={{ padding: 8 }}>
                 {conversations.map((conv) => {
                   const other = otherPerson(conv);
                   if (!other) return null;
@@ -119,25 +117,42 @@ export default function Messages() {
                     <button
                       key={conv._id}
                       onClick={() => setSelected(conv._id)}
-                      className={`w-full text-left p-4 rounded-lg transition-all mb-2 ${
-                        isSelected
-                          ? "glass-card bg-primary-500/10 dark:bg-primary-500/10 border-primary-500"
-                          : "glass hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
-                      }`}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        padding: 16,
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        border: isSelected ? "1px solid var(--cyan)" : "1px solid transparent",
+                        background: isSelected ? "var(--card)" : "transparent",
+                        color: "inherit",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        fontFamily: "inherit",
+                        fontSize: "inherit",
+                      }}
+                      onMouseEnter={(e) => { if (!isSelected) { e.currentTarget.style.background = "var(--card)"; }}}
+                      onMouseLeave={(e) => { if (!isSelected) { e.currentTarget.style.background = "transparent"; }}}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="avatar text-sm">{other.name[0]}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm truncate">
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div className="dh-avatar dh-avatar-sm">
+                          {other.avatar ? (
+                            <img src={other.avatar} alt={other.name} className="dh-avatar-img" />
+                          ) : (
+                            other.name[0]
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {other.name}
                           </div>
-                          <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                          <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {conv.job.title}
                           </div>
                         </div>
                       </div>
                       {conv.lastMessage && (
-                        <div className="text-xs text-slate-500 dark:text-slate-500 truncate mt-2 ml-10">
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 8, marginLeft: 44 }}>
                           {conv.lastMessage}
                         </div>
                       )}
@@ -154,27 +169,28 @@ export default function Messages() {
           {selected && selectedConv ? (
             <>
               {/* Chat Header */}
-              <div className="glass-card-light rounded-none border-b border-slate-200/50 dark:border-slate-700/50 px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="avatar">{otherUser?.name[0]}</div>
+              <div style={{ padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--border)", background: "var(--card)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div className="dh-avatar">
+                    {otherUser?.avatar ? (
+                      <img src={otherUser.avatar} alt={otherUser.name} className="dh-avatar-img" />
+                    ) : (
+                      otherUser?.name[0]
+                    )}
+                  </div>
                   <div>
-                    <h3 className="font-bold">{otherUser?.name}</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {selectedConv.job.title}
-                    </p>
+                    <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)", margin: 0 }}>{otherUser?.name}</h3>
+                    <p style={{ fontSize: "0.78rem", color: "var(--text-dim)", margin: 0 }}>{selectedConv.job.title}</p>
                   </div>
                 </div>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="flex-1 overflow-y-auto" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
                 {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <span className="text-4xl block mb-2">👋</span>
-                      <p className="text-slate-600 dark:text-slate-400">
-                        No messages yet. Start the conversation!
-                      </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ color: "var(--text-dim)" }}>No messages yet. Start the conversation!</p>
                     </div>
                   </div>
                 ) : (
@@ -183,29 +199,23 @@ export default function Messages() {
                     return (
                       <div
                         key={msg._id}
-                        className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                        style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start" }}
                       >
                         <div
-                          className={`max-w-xs px-4 py-3 rounded-2xl ${
-                            isMe
-                              ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-tr-none shadow-lg"
-                              : "glass rounded-tl-none"
-                          }`}
+                          style={{
+                            maxWidth: "320px",
+                            padding: "12px 16px",
+                            borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                            background: isMe ? "var(--cyan)" : "var(--card)",
+                            color: isMe ? "#000" : "var(--text-primary)",
+                            border: isMe ? "none" : "1px solid var(--border)",
+                          }}
                         >
-                          <div className="text-sm leading-relaxed break-words">
+                          <div style={{ fontSize: "0.88rem", lineHeight: 1.5, wordBreak: "break-word" }}>
                             {msg.content}
                           </div>
-                          <div
-                            className={`text-xs mt-2 opacity-70 ${
-                              isMe
-                                ? "text-slate-100"
-                                : "text-slate-600 dark:text-slate-400"
-                            }`}
-                          >
-                            {new Date(msg.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                          <div style={{ fontSize: "0.7rem", marginTop: 6, opacity: 0.6 }}>
+                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                           </div>
                         </div>
                       </div>
@@ -216,35 +226,25 @@ export default function Messages() {
               </div>
 
               {/* Input Area */}
-              <div className="glass-card-light rounded-none border-t border-slate-200/50 dark:border-slate-700/50 p-6">
-                <div className="flex gap-3">
+              <div style={{ padding: "24px", borderTop: "1px solid var(--border)", background: "var(--card)" }}>
+                <div style={{ display: "flex", gap: 12 }}>
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" &&
-                      !e.shiftKey &&
-                      (e.preventDefault(), sendMessage())
-                    }
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
                     placeholder="Type a message... (Enter to send)"
-                    className="form-input"
+                    className="dh-input"
                   />
-                  <button
-                    onClick={sendMessage}
-                    className="btn btn-primary flex-shrink-0 flex items-center gap-2"
-                  >
+                  <button onClick={sendMessage} className="dh-btn-primary" style={{ flexShrink: 0 }}>
                     ➤ Send
                   </button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <span className="text-5xl block mb-3">💭</span>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Select a conversation to start chatting
-                </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+              <div style={{ textAlign: "center" }}>
+                <p style={{ color: "var(--text-dim)" }}>Select a conversation to start chatting</p>
               </div>
             </div>
           )}

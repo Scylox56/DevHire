@@ -1,8 +1,13 @@
 import { Link, Navigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 // @ts-ignore
 import "./Home.css";
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 
@@ -36,29 +41,6 @@ function useCountUp(end: number, duration = 2500) {
   }, [end, duration]);
 
   return { count, ref };
-}
-
-function useReveal(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return { ref, visible };
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -182,7 +164,6 @@ function CircuitBg() {
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="xMidYMid slice"
       >
-        {/* Horizontal traces */}
         {[80, 180, 300, 420, 540, 660, 780].map((y, i) => (
           <path
             key={`h${i}`}
@@ -195,7 +176,6 @@ function CircuitBg() {
             }}
           />
         ))}
-        {/* Vertical traces */}
         {[120, 280, 480, 720, 960, 1160, 1360].map((x, i) => (
           <path
             key={`v${i}`}
@@ -208,7 +188,6 @@ function CircuitBg() {
             }}
           />
         ))}
-        {/* Junction nodes */}
         {[
           [120, 80],
           [280, 180],
@@ -238,28 +217,37 @@ function CircuitBg() {
   );
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+// ─── Cursor glow ──────────────────────────────────────────────────────────────
 
-function Reveal({
-  children,
-  delay = 0,
-  threshold = 0.1,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  threshold?: number;
-}) {
-  const { ref, visible } = useReveal(threshold);
-  return (
-    <div
-      ref={ref}
-      className={`reveal-ready ${visible ? "reveal-visible" : "reveal-hidden"}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
+function CursorGlow() {
+  const glowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const glow = glowRef.current;
+    if (!glow) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+
+    const onMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+    window.addEventListener("mousemove", onMove);
+
+    gsap.ticker.add(() => {
+      gsap.set(glow, { x: mouseX, y: mouseY });
+    });
+
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+    };
+  }, []);
+
+  return <div className="cursor-glow" ref={glowRef} />;
 }
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
 function StatCell({
   value,
@@ -273,16 +261,13 @@ function StatCell({
   index: number;
 }) {
   const { count, ref } = useCountUp(value);
-  const { ref: rRef, visible } = useReveal(0.3);
 
   return (
     <div
-      ref={(node) => {
-        (rRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
-      }}
-      className={`stat-cell reveal-ready ${visible ? "reveal-visible" : "reveal-hidden"}`}
-      style={{ transitionDelay: `${index * 100}ms` }}
+      ref={ref}
+      className="stat-cell gsap-stat"
+      data-index={index}
+      style={{ opacity: 0, transform: "translateY(30px)" }}
     >
       <div className="stat-num">
         {count.toLocaleString()}
@@ -299,12 +284,387 @@ export default function Home() {
   const { user } = useAuth();
   if (user) return <Navigate to="/dashboard" replace />;
 
-  // Duplicate testimonials
   const allTestimonials = [...testimonialsData, ...testimonialsData];
 
+  // Refs for GSAP targets
+  const heroHeadlineRef = useRef<HTMLHeadingElement>(null);
+  const heroSubRef = useRef<HTMLParagraphElement>(null);
+  const heroEyebrowRef = useRef<HTMLDivElement>(null);
+  const heroCtaRef = useRef<HTMLDivElement>(null);
+  const heroStackRef = useRef<HTMLDivElement>(null);
+  const heroVisualRef = useRef<HTMLDivElement>(null);
+  const heroChip1Ref = useRef<HTMLDivElement>(null);
+  const heroChip2Ref = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLElement>(null);
+  const stepsHeaderRef = useRef<HTMLDivElement>(null);
+  const stepCellsRef = useRef<HTMLDivElement[]>([]);
+  const featuresHeaderRef = useRef<HTMLDivElement>(null);
+  const featureCellsRef = useRef<HTMLDivElement[]>([]);
+  const testimonialsHeaderRef = useRef<HTMLDivElement>(null);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const primaryBtnRef = useRef<HTMLAnchorElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (prefersReduced) return;
+
+      // ── 1. HERO ENTRANCE ─────────────────────────────────────────────────────
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      // Badge
+      tl.fromTo(
+        heroEyebrowRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6 },
+        0.1,
+      );
+
+      // Split headline words
+      if (heroHeadlineRef.current) {
+        const split = new SplitText(heroHeadlineRef.current, {
+          type: "words,chars",
+        });
+        tl.fromTo(
+          split.words,
+          { opacity: 0, y: 60, rotateX: -40 },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.7,
+            stagger: 0.08,
+            transformOrigin: "0% 50% -30px",
+          },
+          0.3,
+        );
+      }
+
+      tl.fromTo(
+        heroSubRef.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.6 },
+        0.85,
+      );
+
+      tl.fromTo(
+        heroCtaRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        1.0,
+      );
+
+      tl.fromTo(
+        heroStackRef.current,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5 },
+        1.15,
+      );
+
+      // Hero visual: slide in from right with perspective tilt
+      tl.fromTo(
+        heroVisualRef.current,
+        { opacity: 0, x: 80, rotateY: 12, scale: 0.92 },
+        {
+          opacity: 1,
+          x: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 1,
+          ease: "power2.out",
+        },
+        0.5,
+      );
+
+      // Floating chips cascade in
+      tl.fromTo(
+        heroChip1Ref.current,
+        { opacity: 0, scale: 0.7, y: -20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+        1.2,
+      );
+      tl.fromTo(
+        heroChip2Ref.current,
+        { opacity: 0, scale: 0.7, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+        1.35,
+      );
+
+      // ── 2. STATS BAR ─────────────────────────────────────────────────────────
+      const statCells = document.querySelectorAll(".gsap-stat");
+      if (statCells.length) {
+        gsap.to(statCells, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.12,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: "top 85%",
+            once: true,
+          },
+        });
+      }
+
+      // ── 3. STEPS SECTION ─────────────────────────────────────────────────────
+      if (stepsHeaderRef.current) {
+        const split = new SplitText(
+          stepsHeaderRef.current.querySelector(".section-heading"),
+          { type: "lines" },
+        );
+        gsap.fromTo(
+          stepsHeaderRef.current.querySelector(".section-eyebrow"),
+          { opacity: 0, x: -20 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.5,
+            scrollTrigger: {
+              trigger: stepsHeaderRef.current,
+              start: "top 80%",
+              once: true,
+            },
+          },
+        );
+        gsap.fromTo(
+          split.lines,
+          { opacity: 0, y: 40, skewY: 3 },
+          {
+            opacity: 1,
+            y: 0,
+            skewY: 0,
+            duration: 0.7,
+            stagger: 0.1,
+            scrollTrigger: {
+              trigger: stepsHeaderRef.current,
+              start: "top 78%",
+              once: true,
+            },
+          },
+        );
+        gsap.fromTo(
+          stepsHeaderRef.current.querySelector(".section-sub"),
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            delay: 0.3,
+            scrollTrigger: {
+              trigger: stepsHeaderRef.current,
+              start: "top 78%",
+              once: true,
+            },
+          },
+        );
+      }
+
+      stepCellsRef.current.forEach((cell, i) => {
+        if (!cell) return;
+        gsap.fromTo(
+          cell,
+          { opacity: 0, y: 50, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.65,
+            delay: i * 0.15,
+            ease: "power2.out",
+            scrollTrigger: { trigger: cell, start: "top 85%", once: true },
+          },
+        );
+        // Glyph spin-in
+        const glyph = cell.querySelector(".step-glyph");
+        if (glyph) {
+          gsap.fromTo(
+            glyph,
+            { rotate: -90, opacity: 0, scale: 0.5 },
+            {
+              rotate: 0,
+              opacity: 1,
+              scale: 1,
+              duration: 0.5,
+              delay: i * 0.15 + 0.25,
+              ease: "back.out(2)",
+              scrollTrigger: { trigger: cell, start: "top 85%", once: true },
+            },
+          );
+        }
+      });
+
+      // ── 4. FEATURES SECTION ──────────────────────────────────────────────────
+      if (featuresHeaderRef.current) {
+        gsap.fromTo(
+          featuresHeaderRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            scrollTrigger: {
+              trigger: featuresHeaderRef.current,
+              start: "top 80%",
+              once: true,
+            },
+          },
+        );
+      }
+
+      featureCellsRef.current.forEach((cell, i) => {
+        if (!cell) return;
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        gsap.fromTo(
+          cell,
+          { opacity: 0, y: 40 + row * 10, x: (col - 1) * 15 },
+          {
+            opacity: 1,
+            y: 0,
+            x: 0,
+            duration: 0.6,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: cell,
+              start: "top 88%",
+              once: true,
+            },
+            delay: col * 0.08 + row * 0.05,
+          },
+        );
+      });
+
+      // ── 5. TESTIMONIALS MARQUEE ──────────────────────────────────────────────
+      if (testimonialsHeaderRef.current) {
+        gsap.fromTo(
+          testimonialsHeaderRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            scrollTrigger: {
+              trigger: testimonialsHeaderRef.current,
+              start: "top 80%",
+              once: true,
+            },
+          },
+        );
+      }
+
+      // GSAP-driven infinite marquee (replaces CSS animation)
+      if (marqueeRef.current) {
+        const track = marqueeRef.current;
+        const totalWidth = track.scrollWidth / 2; // half because content is doubled
+
+        gsap.to(track, {
+          x: `-=${totalWidth}`,
+          duration: totalWidth / 60, // speed: px/s
+          ease: "none",
+          repeat: -1,
+          modifiers: {
+            x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+          },
+        });
+      }
+
+      // ── 6. CTA SECTION ───────────────────────────────────────────────────────
+      if (ctaRef.current) {
+        const ctaTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: ctaRef.current,
+            start: "top 75%",
+            once: true,
+          },
+        });
+
+        ctaTl.fromTo(
+          ctaRef.current,
+          { opacity: 0, y: 40, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" },
+        );
+
+        const ctaHeading = ctaRef.current.querySelector(".cta-heading");
+        if (ctaHeading) {
+          const split = new SplitText(ctaHeading, { type: "lines" });
+          ctaTl.fromTo(
+            split.lines,
+            { opacity: 0, y: 30, skewY: 2 },
+            { opacity: 1, y: 0, skewY: 0, duration: 0.6, stagger: 0.1 },
+            0.15,
+          );
+        }
+
+        ctaTl.fromTo(
+          ctaRef.current.querySelector(".cta-sub"),
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5 },
+          0.4,
+        );
+
+        ctaTl.fromTo(
+          ctaRef.current.querySelector(".cta-row"),
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.5 },
+          0.55,
+        );
+
+        // Glow pulse on the cta block after enter
+        gsap.to(ctaRef.current, {
+          boxShadow:
+            "0 0 80px rgba(0,255,209,0.12), 0 0 160px rgba(0,255,209,0.05)",
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: 1.5,
+          scrollTrigger: {
+            trigger: ctaRef.current,
+            start: "top 75%",
+            once: true,
+          },
+        });
+      }
+
+      // ── 7. MAGNETIC PRIMARY BUTTON ───────────────────────────────────────────
+      const btn = primaryBtnRef.current;
+      if (btn) {
+        const onEnter = (e: MouseEvent) => {
+          const rect = btn.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.clientX - cx) * 0.35;
+          const dy = (e.clientY - cy) * 0.35;
+          gsap.to(btn, { x: dx, y: dy, duration: 0.3, ease: "power2.out" });
+        };
+        const onLeave = () => {
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.5,
+            ease: "elastic.out(1, 0.4)",
+          });
+        };
+        btn.addEventListener("mousemove", onEnter);
+        btn.addEventListener("mouseleave", onLeave);
+        return () => {
+          btn.removeEventListener("mousemove", onEnter);
+          btn.removeEventListener("mouseleave", onLeave);
+        };
+      }
+    }, rootRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="dh-root">
-      {/* Background layers */}
+    <div className="dh-root" ref={rootRef}>
+      <CursorGlow />
       <CircuitBg />
       <div className="scanlines" />
 
@@ -317,14 +677,18 @@ export default function Home() {
           >
             {/* Left */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="hero-eyebrow">
+              <div
+                className="hero-eyebrow"
+                ref={heroEyebrowRef}
+                style={{ opacity: 0 }}
+              >
                 <span className="dh-badge">
                   <span className="dh-badge-dot" />
                   12,000+ developers online now
                 </span>
               </div>
 
-              <h1 className="dh-display hero-headline">
+              <h1 className="dh-display hero-headline" ref={heroHeadlineRef}>
                 <span className="text-cyan">Hire</span> the
                 <br />
                 <span className="text-cyan">Devs</span> that
@@ -332,13 +696,21 @@ export default function Home() {
                 <span className="hero-headline line-muted">ship.</span>
               </h1>
 
-              <p className="hero-sub">
+              <p className="hero-sub" ref={heroSubRef} style={{ opacity: 0 }}>
                 The freelance marketplace built for engineers. Find your next
                 contract or source exceptional talent — no noise, just signal.
               </p>
 
-              <div className="hero-cta-row">
-                <Link to="/register" className="dh-btn-primary">
+              <div
+                className="hero-cta-row"
+                ref={heroCtaRef}
+                style={{ opacity: 0 }}
+              >
+                <Link
+                  to="/register"
+                  className="dh-btn-primary"
+                  ref={primaryBtnRef}
+                >
                   Get Started Free
                   <span style={{ fontSize: "1.1em" }}>→</span>
                 </Link>
@@ -347,7 +719,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div>
+              <div ref={heroStackRef} style={{ opacity: 0 }}>
                 <p className="hero-stack-label">Trusted technology stack</p>
                 <div className="tech-pills">
                   {logos.map((l) => (
@@ -361,7 +733,11 @@ export default function Home() {
             </div>
 
             {/* Right: Dashboard preview */}
-            <div className="hero-visual">
+            <div
+              className="hero-visual"
+              ref={heroVisualRef}
+              style={{ opacity: 0, perspective: "1000px" }}
+            >
               <div className="dash-card">
                 <div className="dash-chrome">
                   <div className="dash-dot" style={{ background: "#FF5F57" }} />
@@ -450,14 +826,15 @@ export default function Home() {
               {/* Floating chips */}
               <div
                 className="float-chip"
+                ref={heroChip1Ref}
                 style={{
                   top: "-16px",
                   right: "-16px",
-                  animationDelay: "1s",
+                  opacity: 0,
                   animation: "float-slow 5s ease-in-out infinite 1s",
                 }}
               >
-                <span className="float-chip-icon">👾</span>
+                <span className="float-chip-icon" style={{ fontSize: "0.7rem", fontFamily: "'JetBrains Mono', monospace" }}>&lt;/&gt;</span>
                 <div>
                   <div className="float-chip-title">+250 devs</div>
                   <div className="float-chip-sub">joined today</div>
@@ -466,13 +843,15 @@ export default function Home() {
 
               <div
                 className="float-chip"
+                ref={heroChip2Ref}
                 style={{
                   bottom: "-16px",
                   left: "-16px",
+                  opacity: 0,
                   animation: "float-slow 5s ease-in-out infinite 2.5s",
                 }}
               >
-                <span className="float-chip-icon">💼</span>
+                <span className="float-chip-icon" style={{ fontSize: "0.7rem" }}>⎔</span>
                 <div>
                   <div className="float-chip-title">1,200+ jobs</div>
                   <div className="float-chip-sub">open now</div>
@@ -484,7 +863,7 @@ export default function Home() {
       </section>
 
       {/* ── STATS ── */}
-      <section className="stats-section">
+      <section className="stats-section" ref={statsRef}>
         <div className="dh-container" style={{ padding: 0, maxWidth: "100%" }}>
           <div className="stats-grid">
             <StatCell value={12000} suffix="+" label="Developers" index={0} />
@@ -503,37 +882,36 @@ export default function Home() {
       {/* ── HOW IT WORKS ── */}
       <section className="steps-section">
         <div className="dh-container">
-          <Reveal>
-            <div className="steps-header">
-              <p className="section-eyebrow">// Process</p>
-              <h2 className="section-heading">
-                Three steps.
-                <br />
-                Zero friction.
-              </h2>
-              <p className="section-sub">
-                Whether you're shipping a product or landing your next contract,
-                you're up and running in minutes.
-              </p>
-            </div>
-          </Reveal>
+          <div className="steps-header" ref={stepsHeaderRef}>
+            <p className="section-eyebrow" style={{ opacity: 0 }}>
+              // Process
+            </p>
+            <h2 className="section-heading">
+              Three steps.
+              <br />
+              Zero friction.
+            </h2>
+            <p className="section-sub" style={{ opacity: 0 }}>
+              Whether you're shipping a product or landing your next contract,
+              you're up and running in minutes.
+            </p>
+          </div>
 
           <div className="steps-grid">
             {stepsData.map((step, i) => (
-              <Reveal key={step.num} delay={i * 120}>
-                <div className="step-cell" style={{ height: "100%" }}>
-                  <div className="step-number">{step.num}</div>
-                  <span className="step-glyph">{step.glyph}</span>
-                  <h3 className="step-title">{step.title}</h3>
-                  <p className="step-desc">{step.desc}</p>
-                  {i < stepsData.length - 1 && (
-                    <div
-                      className="step-connector"
-                      style={{ display: "none" }}
-                    />
-                  )}
-                </div>
-              </Reveal>
+              <div
+                key={step.num}
+                className="step-cell"
+                style={{ height: "100%", opacity: 0 }}
+                ref={(el) => {
+                  if (el) stepCellsRef.current[i] = el;
+                }}
+              >
+                <div className="step-number">{step.num}</div>
+                <span className="step-glyph">{step.glyph}</span>
+                <h3 className="step-title">{step.title}</h3>
+                <p className="step-desc">{step.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -542,37 +920,46 @@ export default function Home() {
       {/* ── FEATURES ── */}
       <section className="features-section">
         <div className="dh-container">
-          <Reveal>
-            <div className="features-header">
-              <div>
-                <p className="section-eyebrow">// Capabilities</p>
-                <h2 className="section-heading">
-                  Built for
-                  <br />
-                  how devs work.
-                </h2>
-              </div>
-              <p className="section-sub" style={{ maxWidth: "360px" }}>
-                Every tool you need from first contact to final payment, without
-                the bloat.
-              </p>
+          <div
+            className="features-header"
+            ref={featuresHeaderRef}
+            style={{ opacity: 0 }}
+          >
+            <div>
+              <p className="section-eyebrow">// Capabilities</p>
+              <h2 className="section-heading">
+                Built for
+                <br />
+                how devs work.
+              </h2>
             </div>
-          </Reveal>
+            <p className="section-sub" style={{ maxWidth: "360px" }}>
+              Every tool you need from first contact to final payment, without
+              the bloat.
+            </p>
+          </div>
 
           <div className="features-grid">
             {featuresData.map((f, i) => (
-              <Reveal key={f.title} delay={i * 80}>
-                <div
-                  className="feature-cell"
-                  style={{ "--accent-color": f.accent } as React.CSSProperties}
-                >
-                  <span className="feature-glyph" style={{ color: f.accent }}>
-                    {f.glyph}
-                  </span>
-                  <h3 className="feature-title">{f.title}</h3>
-                  <p className="feature-desc">{f.desc}</p>
-                </div>
-              </Reveal>
+              <div
+                key={f.title}
+                className="feature-cell"
+                style={
+                  {
+                    "--accent-color": f.accent,
+                    opacity: 0,
+                  } as React.CSSProperties
+                }
+                ref={(el) => {
+                  if (el) featureCellsRef.current[i] = el;
+                }}
+              >
+                <span className="feature-glyph" style={{ color: f.accent }}>
+                  {f.glyph}
+                </span>
+                <h3 className="feature-title">{f.title}</h3>
+                <p className="feature-desc">{f.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -581,21 +968,23 @@ export default function Home() {
       {/* ── TESTIMONIALS ── */}
       <section className="testimonials-section">
         <div className="dh-container">
-          <Reveal>
-            <div className="testimonials-header">
-              <p className="section-eyebrow">// Community</p>
-              <h2 className="section-heading">
-                Trusted by
-                <br />
-                builders worldwide.
-              </h2>
-            </div>
-          </Reveal>
+          <div
+            className="testimonials-header"
+            ref={testimonialsHeaderRef}
+            style={{ opacity: 0 }}
+          >
+            <p className="section-eyebrow">// Community</p>
+            <h2 className="section-heading">
+              Trusted by
+              <br />
+              builders worldwide.
+            </h2>
+          </div>
         </div>
 
         <div className="marquee-wrapper">
           <div style={{ overflow: "hidden" }}>
-            <div className="marquee-track">
+            <div className="marquee-track" ref={marqueeRef}>
               {allTestimonials.map((t, i) => (
                 <div key={`${t.name}-${i}`} className="testimonial-card">
                   <div className="t-stars">
@@ -629,47 +1018,45 @@ export default function Home() {
       {/* ── CTA ── */}
       <section className="cta-section">
         <div className="dh-container">
-          <Reveal>
-            <div className="cta-block">
-              <div className="cta-glow-line" />
+          <div className="cta-block" ref={ctaRef} style={{ opacity: 0 }}>
+            <div className="cta-glow-line" />
 
-              <p className="section-eyebrow" style={{ marginBottom: "20px" }}>
-                // Ready to build?
-              </p>
+            <p className="section-eyebrow" style={{ marginBottom: "20px" }}>
+              // Ready to build?
+            </p>
 
-              <h2 className="cta-heading">
-                Your next great
-                <br />
-                project starts <span className="text-cyan">here.</span>
-              </h2>
+            <h2 className="cta-heading">
+              Your next great
+              <br />
+              project starts <span className="text-cyan">here.</span>
+            </h2>
 
-              <p className="cta-sub">
-                Join the fastest-growing freelance marketplace for developers.
-                Free to sign up. No credit card required.
-              </p>
+            <p className="cta-sub">
+              Join the fastest-growing freelance marketplace for developers.
+              Free to sign up. No credit card required.
+            </p>
 
-              <div className="cta-row">
-                <Link
-                  to="/register"
-                  className="dh-btn-primary"
-                  style={{ fontSize: "1rem", padding: "16px 36px" }}
-                >
-                  Get Started Free →
-                </Link>
-                <Link
-                  to="/devs"
-                  className="dh-btn-ghost"
-                  style={{ fontSize: "1rem", padding: "15px 36px" }}
-                >
-                  Browse Developers
-                </Link>
-              </div>
-
-              <p className="cta-note">
-                FREE_FOR_DEVS · NO_CARD_REQUIRED · CANCEL_ANYTIME
-              </p>
+            <div className="cta-row">
+              <Link
+                to="/register"
+                className="dh-btn-primary"
+                style={{ fontSize: "1rem", padding: "16px 36px" }}
+              >
+                Get Started Free
+              </Link>
+              <Link
+                to="/devs"
+                className="dh-btn-ghost"
+                style={{ fontSize: "1rem", padding: "15px 36px" }}
+              >
+                Browse Developers
+              </Link>
             </div>
-          </Reveal>
+
+            <p className="cta-note">
+              FREE_FOR_DEVS · NO_CARD_REQUIRED · CANCEL_ANYTIME
+            </p>
+          </div>
         </div>
       </section>
 

@@ -1,0 +1,877 @@
+/* ─── Design System ─────────────────────────────────────────────────────────
+   Shared variables & component classes for the DevHire design language.
+   Imported once in main.tsx — consumed by all pages & Navbar.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* ── Theme variables ──────────────────────────────────────────────────────── */
+:root {
+  --void: #050508;
+  --surface: #0d0d18;
+  --card: #111124;
+  --card-hover: rgba(0, 255, 209, 0.02);
+  --border: rgba(0, 255, 209, 0.12);
+  --cyan: #00ffd1;
+  --violet: #7b61ff;
+  --crimson: #ff3e6c;
+  --text-primary: #e8f0fe;
+  --text-muted: #6b7fa8;
+  --text-dim: #3a4565;
+  --badge-bg: rgba(0, 255, 209, 0.06);
+  --badge-border: rgba(0, 255, 209, 0.2);
+  --pill-bg: rgba(255, 255, 255, 0.04);
+  --pill-border: rgba(255, 255, 255, 0.07);
+  --pill-hover-border: rgba(0, 255, 209, 0.25);
+  --pill-hover-bg: rgba(0, 255, 209, 0.04);
+  --ghost-border: rgba(255, 255, 255, 0.12);
+  --ghost-border-hover: rgba(255, 255, 255, 0.35);
+  --ghost-bg-hover: rgba(255, 255, 255, 0.04);
+  --dash-border: rgba(0, 255, 209, 0.15);
+  --dash-shadow: 0 0 60px rgba(0, 255, 209, 0.06), 0 32px 64px rgba(0, 0, 0, 0.6);
+  --float-chip-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --grid-bg: rgba(255, 255, 255, 0.04);
+  --grid-border: rgba(255, 255, 255, 0.06);
+  --stat-cell-border: rgba(255, 255, 255, 0.05);
+  --circuit-opacity: 0.18;
+  --scanlines-color: rgba(0, 0, 0, 0.05);
+  --cta-glow-bg: rgba(0, 255, 209, 0.06);
+  --footer-border: rgba(255, 255, 255, 0.05);
+  --btn-primary-shadow: 0 0 30px rgba(0, 255, 209, 0.4), 0 8px 24px rgba(0, 255, 209, 0.15);
+  --step-number-color: rgba(0, 255, 209, 0.06);
+  --feature-hover-bg: var(--surface);
+  --testimonial-border: rgba(255, 255, 255, 0.06);
+  --testimonial-hover-border: rgba(0, 255, 209, 0.2);
+  --progress-bg: rgba(255, 255, 255, 0.06);
+  --nav-hover-bg: rgba(0, 255, 209, 0.04);
+  --nav-btn-ghost-border: rgba(255, 255, 255, 0.12);
+  --nav-btn-ghost-border-hover: rgba(255, 255, 255, 0.35);
+  --nav-btn-ghost-bg-hover: rgba(255, 255, 255, 0.04);
+}
+
+:root:not(.dark) {
+  --void: #f5f7fa;
+  --surface: #ffffff;
+  --card: #f0f4ff;
+  --card-hover: rgba(0, 204, 168, 0.04);
+  --border: rgba(0, 204, 168, 0.15);
+  --cyan: #00cca8;
+  --violet: #7b61ff;
+  --crimson: #ff3e6c;
+  --text-primary: #1a1a2e;
+  --text-muted: #6b7fa8;
+  --text-dim: #9aabce;
+  --badge-bg: rgba(0, 204, 168, 0.06);
+  --badge-border: rgba(0, 204, 168, 0.2);
+  --pill-bg: rgba(0, 0, 0, 0.03);
+  --pill-border: rgba(0, 0, 0, 0.07);
+  --pill-hover-border: rgba(0, 204, 168, 0.25);
+  --pill-hover-bg: rgba(0, 204, 168, 0.04);
+  --ghost-border: rgba(0, 0, 0, 0.08);
+  --ghost-border-hover: rgba(0, 0, 0, 0.18);
+  --ghost-bg-hover: rgba(0, 0, 0, 0.02);
+  --dash-border: rgba(0, 204, 168, 0.15);
+  --dash-shadow: 0 0 40px rgba(0, 204, 168, 0.04), 0 16px 48px rgba(0, 0, 0, 0.06);
+  --float-chip-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --grid-bg: rgba(0, 0, 0, 0.02);
+  --grid-border: rgba(0, 0, 0, 0.06);
+  --stat-cell-border: rgba(0, 0, 0, 0.05);
+  --circuit-opacity: 0.06;
+  --scanlines-color: rgba(0, 0, 0, 0.015);
+  --cta-glow-bg: rgba(0, 204, 168, 0.04);
+  --footer-border: rgba(0, 0, 0, 0.05);
+  --btn-primary-shadow: 0 0 24px rgba(0, 204, 168, 0.3), 0 6px 16px rgba(0, 204, 168, 0.1);
+  --step-number-color: rgba(0, 204, 168, 0.06);
+  --feature-hover-bg: #f8faff;
+  --testimonial-border: rgba(0, 0, 0, 0.06);
+  --testimonial-hover-border: rgba(0, 204, 168, 0.2);
+  --progress-bg: rgba(0, 0, 0, 0.04);
+  --nav-hover-bg: rgba(0, 204, 168, 0.06);
+  --nav-btn-ghost-border: rgba(0, 0, 0, 0.1);
+  --nav-btn-ghost-border-hover: rgba(0, 0, 0, 0.2);
+  --nav-btn-ghost-bg-hover: rgba(0, 0, 0, 0.03);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
+.dh-root {
+  min-height: 100vh;
+  background: var(--void);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+}
+
+.dh-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────── */
+
+.dh-display {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.dh-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.text-cyan {
+  color: var(--cyan);
+}
+.text-violet {
+  color: var(--violet);
+}
+.text-crimson {
+  color: var(--crimson);
+}
+
+/* Section headers (eyebrow + heading + sub) */
+
+.dh-eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 16px;
+}
+
+.dh-heading {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+}
+
+.dh-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* Aliases used by Home.tsx */
+.section-eyebrow { font-family: "JetBrains Mono", monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); margin-bottom: 16px; }
+.section-heading { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.03em; line-height: 1.1; color: var(--text-primary); margin: 0 0 16px; }
+.section-sub { font-size: 1rem; color: var(--text-muted); max-width: 520px; line-height: 1.7; }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.dh-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cyan);
+  color: #000;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  padding: 14px 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dh-btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.dh-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.dh-btn-primary:hover::before {
+  opacity: 1;
+}
+
+.dh-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dh-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: 1px solid var(--ghost-border);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dh-btn-ghost:hover {
+  border-color: var(--ghost-border-hover);
+  background: var(--ghost-bg-hover);
+  transform: translateY(-1px);
+}
+
+.dh-btn-sm {
+  padding: 10px 18px;
+  font-size: 0.85rem;
+}
+
+.dh-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--crimson);
+  color: #fff;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dh-btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(255, 62, 108, 0.3);
+}
+
+.dh-btn-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cyan);
+  color: #000;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dh-btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(0, 255, 209, 0.3);
+}
+
+/* ── Badge / Pill ─────────────────────────────────────────────────────────── */
+
+.dh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+}
+
+.dh-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 255, 209, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(0, 255, 209, 0);
+  }
+}
+
+/* Status badges (for jobs, proposals) */
+.dh-badge-open {
+  background: rgba(0, 255, 209, 0.1);
+  border-color: rgba(0, 255, 209, 0.25);
+  color: var(--cyan);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-in_progress,
+.dh-badge-accepted {
+  background: rgba(123, 97, 255, 0.1);
+  border-color: rgba(123, 97, 255, 0.25);
+  color: var(--violet);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-completed,
+.dh-badge-success {
+  background: rgba(0, 255, 209, 0.08);
+  border-color: rgba(0, 255, 209, 0.2);
+  color: var(--cyan);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-pending {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-cancelled,
+.dh-badge-rejected {
+  background: rgba(255, 62, 108, 0.1);
+  border-color: rgba(255, 62, 108, 0.2);
+  color: var(--crimson);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-held {
+  background: rgba(255, 189, 46, 0.1);
+  border-color: rgba(255, 189, 46, 0.25);
+  color: #ffbd2e;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-released {
+  background: rgba(0, 255, 209, 0.08);
+  border-color: rgba(0, 255, 209, 0.2);
+  color: var(--cyan);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.dh-badge-refunded {
+  background: rgba(255, 62, 108, 0.1);
+  border-color: rgba(255, 62, 108, 0.2);
+  color: var(--crimson);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+/* Badge helper — maps status strings to classes */
+.dh-badge[data-status="open"],
+.dh-badge[data-status="pending"] {
+  background: rgba(0, 255, 209, 0.1);
+  border-color: rgba(0, 255, 209, 0.25);
+  color: var(--cyan);
+}
+
+.dh-badge[data-status="in_progress"],
+.dh-badge[data-status="accepted"] {
+  background: rgba(123, 97, 255, 0.1);
+  border-color: rgba(123, 97, 255, 0.25);
+  color: var(--violet);
+}
+
+.dh-badge[data-status="completed"],
+.dh-badge[data-status="released"] {
+  background: rgba(0, 255, 209, 0.08);
+  border-color: rgba(0, 255, 209, 0.2);
+  color: var(--cyan);
+}
+
+.dh-badge[data-status="cancelled"],
+.dh-badge[data-status="rejected"] {
+  background: rgba(255, 62, 108, 0.1);
+  border-color: rgba(255, 62, 108, 0.2);
+  color: var(--crimson);
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+
+.dh-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  transition: all 0.2s ease;
+}
+
+.dh-card-hover {
+  cursor: pointer;
+}
+
+.dh-card-hover:hover {
+  background: var(--card-hover);
+  border-color: var(--badge-border);
+}
+
+/* ── Form elements ────────────────────────────────────────────────────────── */
+
+.dh-label {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.dh-input,
+.dh-textarea,
+.dh-select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dh-input::placeholder,
+.dh-textarea::placeholder {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.dh-input:focus,
+.dh-textarea:focus,
+.dh-select:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(0, 255, 209, 0.08);
+}
+
+.dh-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.dh-select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7FA8' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.dh-form-group {
+  margin-bottom: 24px;
+}
+
+.dh-hint {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ── Avatar ───────────────────────────────────────────────────────────────── */
+
+.dh-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.dh-avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.7rem;
+}
+
+.dh-avatar-lg {
+  width: 56px;
+  height: 56px;
+  font-size: 1.15rem;
+}
+
+.dh-avatar-img {
+  border-radius: 6px;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+
+.dh-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--cyan);
+  animation: dh-spin 0.7s linear infinite;
+}
+
+.dh-spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+@keyframes dh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+
+.dh-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+  border: none;
+}
+
+/* ── Stat cell (dashboard cards) ──────────────────────────────────────────── */
+
+.dh-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.dh-stat:hover {
+  background: var(--card-hover);
+}
+
+.dh-stat-value {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.03em;
+  color: var(--cyan);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.dh-stat-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── Responsive grids ─────────────────────────────────────────────────────── */
+
+.dh-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.dh-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.dh-grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .dh-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dh-grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────────────── */
+
+.dh-gradient-text {
+  background: linear-gradient(135deg, var(--cyan), var(--violet), var(--crimson));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Section spacing ────────────────────────────────────────────────────────── */
+
+.dh-section {
+  padding: 80px 0;
+}
+
+/* ── Link styles ──────────────────────────────────────────────────────────── */
+
+.dh-link {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.dh-link:hover {
+  color: var(--cyan);
+}
+
+/* ── Page header ────────────────────────────────────────────────────────────── */
+
+.dh-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+
+.dh-page-header-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  line-height: 1.1;
+}
+
+.dh-page-header-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Footer class aliases (used by Home.tsx) */
+.footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.footer-brand { display: flex; align-items: center; gap: 8px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--cyan); letter-spacing: -0.02em; text-decoration: none; }
+.footer-brand-mark { width: 24px; height: 24px; background: var(--cyan); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #000; font-weight: 800; }
+.footer-links { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
+.footer-links a { font-family: "JetBrains Mono", monospace; font-size: 0.68rem; letter-spacing: 0.06em; color: var(--text-dim); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+.footer-links a:hover { color: var(--cyan); }
+.footer-copy { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.04em; }
+
+/* ── Footer (shared) ────────────────────────────────────────────────────────── */
+
+.dh-footer {
+  border-top: 1px solid var(--footer-border);
+  padding: 32px 0;
+  margin-top: auto;
+}
+
+.dh-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.dh-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--cyan);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.dh-footer-brand-mark {
+  width: 24px;
+  height: 24px;
+  background: var(--cyan);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: #000;
+  font-weight: 800;
+}
+
+.dh-footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dh-footer-links a {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.dh-footer-links a:hover {
+  color: var(--cyan);
+}
+
+.dh-footer-copy {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+/* ── Status message chip ──────────────────────────────────────────────────── */
+
+.dh-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────────── */
+
+.dh-empty {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.dh-empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.dh-empty-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.dh-empty-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* ── Tech pill (tag) ────────────────────────────────────────────────────────── */
+
+.dh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.dh-pill:hover {
+  border-color: var(--pill-hover-border);
+  color: var(--cyan);
+  background: var(--pill-hover-bg);
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .dh-spinner {
+    animation: none;
+    border-color: var(--text-dim);
+    border-top-color: var(--text-dim);
+  }
+}

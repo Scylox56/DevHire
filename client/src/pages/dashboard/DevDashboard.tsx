@@ -22,118 +22,79 @@ export default function DevDashboard() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="spinner mx-auto mb-4 h-8 w-8"></div>
-          <p className="text-slate-600 dark:text-slate-400">
-            Loading your dashboard...
-          </p>
+      <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <div className="dh-spinner" style={{ margin: "0 auto 16px" }}></div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 py-12">
-      <div className="container">
-        {/* Header */}
-        <div className="page-header mb-12 items-end">
+    <div className="dh-root" style={{ padding: "48px 0" }}>
+      <div className="dh-container">
+        <div className="dh-page-header">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-              Developer Dashboard
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400">
-              Track your projects and earnings
-            </p>
+            <h1 className="dh-page-header-title">Developer Dashboard</h1>
+            <p className="dh-page-header-sub">Track your projects and earnings</p>
           </div>
-          <Link to="/jobs" className="btn btn-primary flex items-center gap-2">
-            Browse Jobs
-          </Link>
+          <Link to="/jobs" className="dh-btn-primary">Browse Jobs</Link>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid-3 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
-          <div className="glass-card-light text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">
-              {data.totalProposals}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Proposals Sent
-            </div>
+        <div className="dh-grid-responsive" style={{ marginBottom: 48 }}>
+          <div className="dh-stat">
+            <div className="dh-stat-value">{data.totalProposals}</div>
+            <div className="dh-stat-label">Proposals Sent</div>
           </div>
-          <div className="glass-card-light text-center">
-            <div className="text-3xl font-bold text-emerald-500 dark:text-emerald-400 mb-2">
-              {data.acceptedProposals}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Accepted
-            </div>
+          <div className="dh-stat">
+            <div className="dh-stat-value" style={{ color: "var(--cyan)" }}>{data.acceptedProposals}</div>
+            <div className="dh-stat-label">Accepted</div>
           </div>
-          <div className="glass-card-light text-center">
-            <div className="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-2">
-              {data.activeJobs}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Active Jobs
-            </div>
+          <div className="dh-stat">
+            <div className="dh-stat-value" style={{ color: "var(--violet)" }}>{data.activeJobs}</div>
+            <div className="dh-stat-label">Active Jobs</div>
           </div>
-          <div className="glass-card-light text-center">
-            <div className="text-3xl font-bold text-secondary-500 dark:text-secondary-400 mb-2">
-              {data.completedJobs}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Completed
-            </div>
+          <div className="dh-stat">
+            <div className="dh-stat-value" style={{ color: "var(--cyan)" }}>{data.completedJobs}</div>
+            <div className="dh-stat-label">Completed</div>
           </div>
-          <div className="glass-card-light text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">
-              ${data.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Total Earned
-            </div>
+          <div className="dh-stat">
+            <div className="dh-stat-value">{data.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+            <div className="dh-stat-label">Total Earned</div>
           </div>
         </div>
 
-        {/* Recent Jobs */}
         <div>
-          <h2 className="text-2xl font-bold mb-6">Recent Jobs</h2>
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.3rem", color: "var(--text-primary)", marginBottom: 24 }}>Recent Jobs</h2>
           {data.recentJobs.length === 0 ? (
-            <div className="glass-card-light text-center py-12">
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                No active jobs yet
-              </p>
-              <Link
-                to="/jobs"
-                className="btn btn-secondary inline-flex items-center gap-2"
-              >
-                Start Browsing Jobs
-              </Link>
+            <div className="dh-empty">
+              <p className="dh-empty-text">No active jobs yet</p>
+              <Link to="/jobs" className="dh-btn-ghost">Start Browsing Jobs</Link>
             </div>
           ) : (
-            <div className="grid-responsive">
+            <div className="dh-grid-responsive">
               {data.recentJobs.map((job: any) => (
                 <Link
                   to={`/jobs/${job._id}`}
                   key={job._id}
-                  className="glass-card-light group cursor-pointer"
+                  className="dh-card dh-card-hover"
+                  style={{ display: "block", textDecoration: "none" }}
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <span className={`badge badge-${job.status}`}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <span className="dh-badge" data-status={job.status}>
                       {job.status.replace("_", " ").toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="font-bold text-lg group-hover:gradient-text transition-all mb-3">
+                  <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em", color: "var(--text-primary)", margin: "0 0 12px", transition: "color 0.2s" }}>
                     {job.title}
                   </h3>
-                  <div className="flex justify-between items-center pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
-                    <span className="font-bold gradient-text">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+                    <span className="text-cyan" style={{ fontWeight: 700, fontSize: "0.95rem" }}>
                       ${job.budget.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
                     {job.client && (
-                      <span className="text-xs text-slate-600 dark:text-slate-400">
-                        {job.client.name}
-                      </span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-dim)" }}>{job.client.name}</span>
                     )}
                   </div>
                 </Link>

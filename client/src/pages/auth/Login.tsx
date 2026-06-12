@@ -25,32 +25,24 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center py-12 px-4">
-      {/* Background animation */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow"
-          style={{ animationDelay: "2s" }}
-        ></div>
-      </div>
-
-      <div className="w-full max-w-md">
-        <div className="glass-card-light mb-6">
-          <div className="text-center mb-8">
-            <span className="text-5xl block mb-3">🔐</span>
-            <h1 className="text-3xl font-bold gradient-text">Welcome Back</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
+    <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
+      <div className="w-full" style={{ maxWidth: 420 }}>
+        <div className="dh-card">
+          <div className="text-center" style={{ marginBottom: 32 }}>
+            <h1 className="dh-heading" style={{ fontSize: "1.8rem", margin: "0 0 8px" }}>
+              Welcome Back
+            </h1>
+            <p className="dh-sub" style={{ maxWidth: "none", fontSize: "0.9rem" }}>
               Sign in to your DevHire account
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
+          <form onSubmit={handleSubmit}>
+            <div className="dh-form-group">
+              <label className="dh-label">Email Address</label>
               <input
                 type="email"
-                className="form-input"
+                className="dh-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
@@ -58,11 +50,11 @@ export default function Login() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
+            <div className="dh-form-group">
+              <label className="dh-label">Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="dh-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -72,41 +64,36 @@ export default function Login() {
 
             <button
               type="submit"
-              className="btn btn-primary w-full mt-6 flex items-center justify-center gap-2"
+              className="dh-btn-primary"
+              style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <span className="spinner h-4 w-4"></span>
+                  <span className="dh-spinner dh-spinner-sm"></span>
                   Signing in...
                 </>
               ) : (
-                <>🚀 Sign In</>
+                <>Sign In</>
               )}
             </button>
           </form>
 
-          <div className="divider"></div>
+          <div className="dh-divider"></div>
 
-          <p className="text-center text-slate-600 dark:text-slate-400">
+          <p style={{ textAlign: "center", fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>
             Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-semibold"
-            >
+            <Link to="/register" className="dh-link" style={{ color: "var(--cyan)" }}>
               Create one
             </Link>
           </p>
         </div>
 
-        {/* Info cards */}
-        <div className="grid grid-cols-2 gap-3 mt-6">
-          <div className="glass rounded-lg p-4 text-center text-sm text-slate-600 dark:text-slate-400">
-            <span className="text-xl block mb-1">💼</span>
+        <div className="dh-grid-2" style={{ marginTop: 16, gap: 12 }}>
+          <div className="dh-chip" style={{ justifyContent: "center" }}>
             For Developers
           </div>
-          <div className="glass rounded-lg p-4 text-center text-sm text-slate-600 dark:text-slate-400">
-            <span className="text-xl block mb-1">👨‍💼</span>
+          <div className="dh-chip" style={{ justifyContent: "center" }}>
             For Clients
           </div>
         </div>

@@ -15,6 +15,7 @@ import paymentRoutes from './routes/payments';
 import reviewRoutes from './routes/reviews';
 import devRoutes from './routes/devs';
 import analyticsRoutes from './routes/analytics';
+import adminRoutes from './routes/admin';
 
 const app = express();
 const server = createServer(app);
@@ -32,6 +33,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/devs', devRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

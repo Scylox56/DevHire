@@ -31,32 +31,24 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center py-12 px-4">
-      {/* Background animation */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10 animate-pulse-slow"
-          style={{ animationDelay: "2s" }}
-        ></div>
-      </div>
-
-      <div className="w-full max-w-md">
-        <div className="glass-card-light mb-6">
-          <div className="text-center mb-8">
-            <span className="text-5xl block mb-3">🎨</span>
-            <h1 className="text-3xl font-bold gradient-text">Join DevHire</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-2">
+    <div className="dh-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
+      <div className="w-full" style={{ maxWidth: 420 }}>
+        <div className="dh-card">
+          <div className="text-center" style={{ marginBottom: 32 }}>
+            <h1 className="dh-heading" style={{ fontSize: "1.8rem", margin: "0 0 8px" }}>
+              Join DevHire
+            </h1>
+            <p className="dh-sub" style={{ maxWidth: "none", fontSize: "0.9rem" }}>
               Create your account and start your journey
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
+          <form onSubmit={handleSubmit}>
+            <div className="dh-form-group">
+              <label className="dh-label">Full Name</label>
               <input
                 type="text"
-                className="form-input"
+                className="dh-input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
@@ -64,11 +56,11 @@ export default function Register() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
+            <div className="dh-form-group">
+              <label className="dh-label">Email Address</label>
               <input
                 type="email"
-                className="form-input"
+                className="dh-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
@@ -76,75 +68,67 @@ export default function Register() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
+            <div className="dh-form-group">
+              <label className="dh-label">Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="dh-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
               />
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                At least 6 characters
-              </p>
+              <p className="dh-hint">At least 6 characters</p>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">I am a</label>
+            <div className="dh-form-group">
+              <label className="dh-label">I am a</label>
               <select
-                className="form-select text-slate-900 dark:text-slate-100"
+                className="dh-select"
                 value={role}
                 onChange={(e) => setRole(e.target.value as "dev" | "client")}
               >
-                <option value="dev" className="text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800">🚀 Developer</option>
-                <option value="client" className="text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800">👨‍💼 Client</option>
+                <option value="dev">Developer</option>
+                <option value="client">Client</option>
               </select>
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary w-full mt-6 flex items-center justify-center gap-2"
+              className="dh-btn-primary"
+              style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <span className="spinner h-4 w-4"></span>
+                  <span className="dh-spinner dh-spinner-sm"></span>
                   Creating account...
                 </>
               ) : (
-                <>✨ Create Account</>
+                <>Create Account</>
               )}
             </button>
           </form>
 
-          <div className="divider"></div>
+          <div className="dh-divider"></div>
 
-          <p className="text-center text-slate-600 dark:text-slate-400">
+          <p style={{ textAlign: "center", fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>
             Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 font-semibold"
-            >
+            <Link to="/login" className="dh-link" style={{ color: "var(--cyan)" }}>
               Sign in
             </Link>
           </p>
         </div>
 
-        {/* Features */}
-        <div className="grid grid-cols-1 gap-3 mt-6">
-          <div className="glass rounded-lg p-3 flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-            <span className="text-lg flex-shrink-0">🔒</span>
-            <span>Your data is secure and encrypted</span>
+        <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="dh-chip">
+            Your data is secure and encrypted
           </div>
-          <div className="glass rounded-lg p-3 flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-            <span className="text-lg flex-shrink-0">⚡</span>
-            <span>Start working immediately after signup</span>
+          <div className="dh-chip">
+            Start working immediately after signup
           </div>
-          <div className="glass rounded-lg p-3 flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-            <span className="text-lg flex-shrink-0">🌍</span>
-            <span>Connect with talented developers worldwide</span>
+          <div className="dh-chip">
+            Connect with talented developers worldwide
           </div>
         </div>
       </div>

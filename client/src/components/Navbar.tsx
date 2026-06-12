@@ -88,9 +88,13 @@ export default function Navbar() {
                 {user.role === "client" && (
                   <NavLink to="/post-job" active={isActive("/post-job")}>Post a Job</NavLink>
                 )}
-                <NavLink to="/dashboard" active={isActive("/dashboard")}>Dashboard</NavLink>
+                {(user.role === "moderator" || user.role === "super_admin") && (
+                  <NavLink to="/admin" active={isActive("/admin")}>Dashboard</NavLink>
+                )}
+                {user.role !== "moderator" && user.role !== "super_admin" && (
+                  <NavLink to="/dashboard" active={isActive("/dashboard")}>Dashboard</NavLink>
+                )}
                 <NavLink to="/messages" active={isActive("/messages")}>Messages</NavLink>
-                <NavLink to="/profile" active={isActive("/profile")}>Profile</NavLink>
               </>
             ) : null}
           </div>
@@ -100,7 +104,11 @@ export default function Navbar() {
             {user ? (
               <div className="dh-avatar-wrapper">
                 <button className="dh-avatar">
-                  {user.name[0].toUpperCase()}
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="dh-avatar-img" />
+                  ) : (
+                    user.name[0].toUpperCase()
+                  )}
                 </button>
                 <div className="dh-dropdown">
                   <div className="dh-dropdown-header">
@@ -126,7 +134,11 @@ export default function Navbar() {
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           {user && (
             <Link to="/profile" className="dh-avatar">
-              {user.name[0].toUpperCase()}
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="dh-avatar-img" />
+              ) : (
+                user.name[0].toUpperCase()
+              )}
             </Link>
           )}
           <button
@@ -154,7 +166,12 @@ export default function Navbar() {
                 {user.role === "client" && (
                   <MobileNavLink to="/post-job" onClick={() => setMobileOpen(false)}>Post a Job</MobileNavLink>
                 )}
-                <MobileNavLink to="/dashboard" onClick={() => setMobileOpen(false)}>Dashboard</MobileNavLink>
+                {(user.role === "moderator" || user.role === "super_admin") && (
+                  <MobileNavLink to="/admin" onClick={() => setMobileOpen(false)}>Dashboard</MobileNavLink>
+                )}
+                {user.role !== "moderator" && user.role !== "super_admin" && (
+                  <MobileNavLink to="/dashboard" onClick={() => setMobileOpen(false)}>Dashboard</MobileNavLink>
+                )}
                 <MobileNavLink to="/messages" onClick={() => setMobileOpen(false)}>Messages</MobileNavLink>
                 <MobileNavLink to="/profile" onClick={() => setMobileOpen(false)}>Profile</MobileNavLink>
                 <div className="dh-mobile-divider" />
