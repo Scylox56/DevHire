@@ -2,6 +2,8 @@ import { Response } from 'express';
 import Review from '../models/Review';
 import Job from '../models/Job';
 import User from '../models/User';
+import Notification from '../models/Notification';
+import { getIO } from '../socket';
 import { AuthRequest } from '../middleware/auth';
 
 export const createReview = async (req: AuthRequest, res: Response) => {
@@ -55,6 +57,21 @@ export const createReview = async (req: AuthRequest, res: Response) => {
         reviewCount: stats[0].count,
       });
     }
+
+    const notif = await Notification.create({
+      recipient: reviewee,
+      type: 'review_received',
+      title: 'New Review',
+      message: `${req.user!.name} left a ${rating}-star review on "${job.title}"`,
+      data: {
+        jobId: job._id.toString(),
+        reviewId: review._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+        actorAvatar: req.user!.avatar,
+      },
+    });
+    getIO().to(`user:${reviewee}`).emit('notification:new', notif);
 
     res.status(201).json(review);
   } catch (error) {

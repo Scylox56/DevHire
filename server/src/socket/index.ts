@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Message from '../models/Message';
 import Conversation from '../models/Conversation';
+import Notification from '../models/Notification';
 
 let io: Server;
 
@@ -77,6 +78,20 @@ export const initSocket = (server: HttpServer) => {
           message: data.content,
           sender: { _id: user._id, name: user.name, avatar: user.avatar },
         });
+
+        const notif = await Notification.create({
+          recipient: receiverId,
+          type: 'new_message',
+          title: 'New Message',
+          message: `${user.name}: ${data.content.substring(0, 100)}`,
+          data: {
+            conversationId: data.conversationId,
+            actorId: user._id.toString(),
+            actorName: user.name,
+            actorAvatar: user.avatar,
+          },
+        });
+        io.to(`user:${receiverId}`).emit('notification:new', notif);
       } catch (err) {
         socket.emit('error', { message: 'Failed to send message' });
       }

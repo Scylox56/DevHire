@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import stripe from '../config/stripe';
 import Transaction from '../models/Transaction';
 import Job from '../models/Job';
+import Notification from '../models/Notification';
+import { getIO } from '../socket';
 import { AuthRequest } from '../middleware/auth';
 
 export const createPaymentIntent = async (req: AuthRequest, res: Response) => {
@@ -70,6 +72,20 @@ export const releasePayment = async (req: AuthRequest, res: Response) => {
 
     job.status = 'completed';
     await job.save();
+
+    const notif = await Notification.create({
+      recipient: transaction.dev,
+      type: 'payment_released',
+      title: 'Payment Released',
+      message: `Payment of $${transaction.amount} for "${job.title}" has been released`,
+      data: {
+        jobId: job._id.toString(),
+        transactionId: transaction._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+      },
+    });
+    getIO().to(`user:${transaction.dev}`).emit('notification:new', notif);
 
     res.json({ message: 'Payment released', transaction });
   } catch (error) {

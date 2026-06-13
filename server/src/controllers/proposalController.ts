@@ -2,6 +2,8 @@ import { Response } from 'express';
 import Proposal from '../models/Proposal';
 import Job, { IJob } from '../models/Job';
 import Conversation from '../models/Conversation';
+import Notification from '../models/Notification';
+import { getIO } from '../socket';
 import { AuthRequest } from '../middleware/auth';
 
 export const createProposal = async (req: AuthRequest, res: Response) => {
@@ -35,6 +37,22 @@ export const createProposal = async (req: AuthRequest, res: Response) => {
       bidAmount,
       estimatedTimeline,
     });
+
+    const populatedProposal = await proposal.populate('dev', 'name avatar');
+    const notif = await Notification.create({
+      recipient: job.client,
+      type: 'proposal_received',
+      title: 'New Proposal',
+      message: `${req.user!.name} proposed on "${job.title}" — $${bidAmount}`,
+      data: {
+        jobId: job._id.toString(),
+        proposalId: proposal._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+        actorAvatar: req.user!.avatar,
+      },
+    });
+    getIO().to(`user:${job.client}`).emit('notification:new', notif);
 
     res.status(201).json(proposal);
   } catch (error) {
@@ -95,6 +113,37 @@ export const acceptProposal = async (req: AuthRequest, res: Response) => {
       { job: job._id, client: job.client, dev: proposal.dev, lastMessage: '', lastMessageAt: new Date() },
       { upsert: true, new: true }
     );
+
+    const jobTitle = job.title;
+
+    const notifAccepted = await Notification.create({
+      recipient: proposal.dev,
+      type: 'proposal_accepted',
+      title: 'Proposal Accepted',
+      message: `Your proposal on "${jobTitle}" was accepted`,
+      data: {
+        jobId: job._id.toString(),
+        proposalId: proposal._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+        actorAvatar: req.user!.avatar,
+      },
+    });
+    getIO().to(`user:${proposal.dev}`).emit('notification:new', notifAccepted);
+
+    const notifAwarded = await Notification.create({
+      recipient: proposal.dev,
+      type: 'job_awarded',
+      title: 'Job Awarded',
+      message: `You were awarded "${jobTitle}" — get started now`,
+      data: {
+        jobId: job._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+        actorAvatar: req.user!.avatar,
+      },
+    });
+    getIO().to(`user:${proposal.dev}`).emit('notification:new', notifAwarded);
 
     res.json(proposal);
   } catch (error) {

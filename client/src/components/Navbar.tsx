@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import NotificationBell from "./NotificationBell";
 import "./Navbar.css";
 
 function SunIcon() {
@@ -100,6 +101,7 @@ export default function Navbar() {
           </div>
 
           <div className="dh-nav-actions">
+            {user && <NotificationBell />}
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             {user ? (
               <div className="dh-avatar-wrapper">
@@ -131,6 +133,7 @@ export default function Navbar() {
 
         {/* Mobile Controls */}
         <div className="dh-nav-mobile-controls">
+          {user && <NotificationBell />}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           {user && (
             <Link to="/profile" className="dh-avatar">

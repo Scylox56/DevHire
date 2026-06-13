@@ -2,6 +2,8 @@ import { Response } from 'express';
 import Job from '../models/Job';
 import Proposal from '../models/Proposal';
 import Review from '../models/Review';
+import Notification from '../models/Notification';
+import { getIO } from '../socket';
 import { AuthRequest } from '../middleware/auth';
 
 export const createJob = async (req: AuthRequest, res: Response) => {
@@ -144,6 +146,22 @@ export const markComplete = async (req: AuthRequest, res: Response) => {
     }
     job.status = 'completed';
     await job.save();
+
+    if (job.awardedTo) {
+      const notif = await Notification.create({
+        recipient: job.awardedTo,
+        type: 'job_completed',
+        title: 'Job Completed',
+        message: `"${job.title}" was marked complete by the client`,
+        data: {
+          jobId: job._id.toString(),
+          actorId: req.user!._id.toString(),
+          actorName: req.user!.name,
+        },
+      });
+      getIO().to(`user:${job.awardedTo}`).emit('notification:new', notif);
+    }
+
     res.json(job);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -170,6 +188,21 @@ export const submitWork = async (req: AuthRequest, res: Response) => {
     job.submittedAt = new Date();
     job.status = 'completed';
     await job.save();
+
+    const notif = await Notification.create({
+      recipient: job.client,
+      type: 'work_submitted',
+      title: 'Work Submitted',
+      message: `${req.user!.name} submitted work on "${job.title}"`,
+      data: {
+        jobId: job._id.toString(),
+        actorId: req.user!._id.toString(),
+        actorName: req.user!.name,
+        actorAvatar: req.user!.avatar,
+      },
+    });
+    getIO().to(`user:${job.client}`).emit('notification:new', notif);
+
     res.json(job);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
